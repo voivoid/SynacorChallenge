@@ -20,16 +20,12 @@ add_library(SynacorLib
   lib/src/synacor/synacor.cpp
   lib/src/synacor/assert.h
   lib/src/synacor/arch.h
-  lib/src/synacor/registers.h
-  lib/src/synacor/registers.cpp
   lib/src/synacor/stack.h
   lib/src/synacor/stack.cpp
-  lib/src/synacor/address_space.h
-  lib/src/synacor/address_space.cpp
   lib/src/synacor/instructions.h
   lib/src/synacor/instructions.cpp
-  lib/src/synacor/value.h
-  lib/src/synacor/value.cpp)
+  lib/src/synacor/value_storage.h
+  lib/src/synacor/value_storage.cpp)
 target_compile_options(SynacorLib PRIVATE ${SYNACOR_CXX_WARNINGS})
 target_include_directories(SynacorLib PUBLIC lib/inc PRIVATE lib/src)
 target_link_libraries(SynacorLib PRIVATE Boost::boost) #typesafe
@@ -44,8 +40,7 @@ target_link_libraries(SynacorApp PRIVATE SynacorLib Boost::boost Boost::program_
 add_executable(SynacorTests
   tests/main.cpp
   tests/instructions.cpp
-  tests/registers.cpp
-  tests/value.cpp)
+  tests/value_storage.cpp)
 target_include_directories(SynacorTests PRIVATE lib/src)
 target_compile_options(SynacorTests PRIVATE ${SYNACOR_CXX_WARNINGS})
 target_link_libraries(SynacorTests PRIVATE SynacorLib Boost::boost Boost::unit_test_framework) #typesafe

@@ -1,7 +1,6 @@
 #include "synacor/instructions.h"
 
-#include "address_space.h"
-#include "registers.h"
+#include "value_storage.h"
 #include "stack.h"
 
 namespace synacor
