@@ -10,6 +10,10 @@
 namespace synacor
 {
 
+bool is_number( Word word );
+bool is_register( Word word );
+bool is_valid( Word word );
+
 struct InvalidValue
 {
 };
