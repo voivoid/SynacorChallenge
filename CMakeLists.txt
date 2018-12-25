@@ -68,6 +68,10 @@ if(ClangFormat)
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 endif()
 
+if(MSVC)
+  set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT SynacorTests)
+endif()
+
 
 enable_testing()
 add_test(NAME AocUtilsTests COMMAND $<TARGET_FILE:SynacorTests>)
