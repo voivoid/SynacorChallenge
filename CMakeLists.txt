@@ -24,6 +24,7 @@ add_library(SynacorLib
   lib/src/synacor/instructions.cpp
   lib/src/synacor/value.h
   lib/src/synacor/value.cpp)
+target_compile_options(SynacorLib PRIVATE -Wall -Wextra -Wpedantic -Werror -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wrestrict -Wnull-dereference -Wold-style-cast -Wuseless-cast -Wdouble-promotion -Wshadow -Wformat=2 -Wconversion -Wsign-conversion -Wfloat-equal -Wcast-qual -Winit-self -Wpointer-arith -Wswitch -Wswitch-enum -Woverloaded-virtual -Wundef)
 target_include_directories(SynacorLib PUBLIC lib/inc PRIVATE lib/src)
 target_link_libraries(SynacorLib PRIVATE Boost::boost typesafe)
 
@@ -36,7 +37,8 @@ target_link_libraries(SynacorApp PRIVATE SynacorLib Boost::boost Boost::program_
 add_executable(SynacorTests
   tests/main.cpp
   tests/instructions.cpp
-  tests/registers.cpp)
+  tests/registers.cpp
+  tests/value.cpp)
 target_include_directories(SynacorTests PRIVATE lib/src)
 target_link_libraries(SynacorTests PRIVATE SynacorLib Boost::boost Boost::unit_test_framework typesafe)
 

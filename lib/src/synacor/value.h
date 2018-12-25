@@ -11,20 +11,23 @@
 namespace synacor
 {
 
+struct InvalidValue
+{
+};
+
 using Number = boost::multiprecision::number<
     boost::multiprecision::cpp_int_backend<NumberBits, NumberBits, boost::multiprecision::unsigned_magnitude>>;
-;
 
 struct Register
 {
-  Register( size_t index ) : index( index )
+  Register( size_t idx ) : index( idx )
   {
     SYNACOR_ASSERT( index < RegistersCount );
   }
   size_t index;
 };
 
-using Value = std::variant<Number, Register>;
+using Value = std::variant<Number, Register, InvalidValue>;
 
 Value interpret_word( Word word );
 
