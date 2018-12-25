@@ -6,8 +6,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 include(cmake/thirdparties/boost.cmake)
-include(cmake/thirdparties/rangev3.cmake)
-include(cmake/thirdparties/typesafe.cmake)
+#include(cmake/thirdparties/rangev3.cmake)
+#include(cmake/thirdparties/typesafe.cmake)
 
 if(MSVC)
   set(SYNACOR_CXX_WARNINGS /W4 /WX)
@@ -32,7 +32,7 @@ add_library(SynacorLib
   lib/src/synacor/value.cpp)
 target_compile_options(SynacorLib PRIVATE ${SYNACOR_CXX_WARNINGS})
 target_include_directories(SynacorLib PUBLIC lib/inc PRIVATE lib/src)
-target_link_libraries(SynacorLib PRIVATE Boost::boost typesafe)
+target_link_libraries(SynacorLib PRIVATE Boost::boost) #typesafe
 
 add_executable(SynacorApp
   app/main.cpp)
@@ -48,7 +48,7 @@ add_executable(SynacorTests
   tests/value.cpp)
 target_include_directories(SynacorTests PRIVATE lib/src)
 target_compile_options(SynacorTests PRIVATE ${SYNACOR_CXX_WARNINGS})
-target_link_libraries(SynacorTests PRIVATE SynacorLib Boost::boost Boost::unit_test_framework typesafe)
+target_link_libraries(SynacorTests PRIVATE SynacorLib Boost::boost Boost::unit_test_framework) #typesafe
 
 find_program(ClangFormat clang-format)
 if(ClangFormat)

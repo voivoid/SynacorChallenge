@@ -4,7 +4,6 @@
 #include "synacor/assert.h"
 
 #include "boost/multiprecision/cpp_int.hpp"
-#include "type_safe/strong_typedef.hpp"
 
 #include <variant>
 
