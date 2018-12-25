@@ -16,7 +16,7 @@ struct InvalidValue
 };
 
 using Number = boost::multiprecision::number<
-    boost::multiprecision::cpp_int_backend<NumberBits, NumberBits, boost::multiprecision::unsigned_magnitude>>;
+    boost::multiprecision::cpp_int_backend<BitsInNumber, BitsInNumber, boost::multiprecision::unsigned_magnitude>>;
 
 struct Register
 {

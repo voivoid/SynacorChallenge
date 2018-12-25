@@ -5,7 +5,7 @@
 namespace synacor
 {
 
-Registers::Registers() : registers{}
+Registers::Registers(Number* registers_data) : registers{registers_data}
 {
 }
 

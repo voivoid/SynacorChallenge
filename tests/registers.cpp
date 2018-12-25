@@ -9,7 +9,8 @@ namespace
 
 struct RegisterFixture
 {
-  synacor::Registers registers;
+  RegisterFixture() : registers( registers_data ){
+  }
 
   void for_all_registers( std::function<void( synacor::Register )> f )
   {
@@ -18,6 +19,9 @@ struct RegisterFixture
       f( synacor::Register{ i } );
     }
   }
+
+  synacor::Number registers_data[synacor::RegistersCount];
+  synacor::Registers registers;
 };
 
 }  // namespace

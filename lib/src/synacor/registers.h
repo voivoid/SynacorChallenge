@@ -11,7 +11,7 @@ namespace synacor
 class Registers
 {
 public:
-  Registers();
+  Registers(Number* registers_data);
 
   Number get_register_value( Register reg );
   void set_register_value( Register reg, Number value );
@@ -20,7 +20,7 @@ private:
   Number& get_register( Register reg_num );
 
 private:
-  std::array<Number, RegistersCount> registers;
+  Number* registers;
 };
 
 }  // namespace synacor

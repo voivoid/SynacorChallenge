@@ -7,7 +7,7 @@ namespace synacor
 {
 
 using Word                               = std::uint16_t;
-static constexpr size_t NumberBits       = 15;
+static constexpr size_t BitsInNumber     = 15;
 static constexpr size_t RegistersCount   = 8;
 static constexpr size_t AddressSpaceSize = 32768;
 
