@@ -9,6 +9,12 @@ include(cmake/thirdparties/boost.cmake)
 include(cmake/thirdparties/rangev3.cmake)
 include(cmake/thirdparties/typesafe.cmake)
 
+if(MSVC)
+  set(SYNACOR_CXX_WARNINGS /W4 /WX)
+else()
+  set(SYNACOR_CXX_WARNINGS -Wall -Wextra -Wpedantic -Werror -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wrestrict -Wnull-dereference -Wold-style-cast -Wuseless-cast -Wdouble-promotion -Wshadow -Wformat=2 -Wconversion -Wsign-conversion -Wfloat-equal -Wcast-qual -Winit-self -Wpointer-arith -Wswitch -Wswitch-enum -Woverloaded-virtual -Wundef)
+endif()
+
 add_library(SynacorLib
   lib/inc/synacor/synacor.h
   lib/src/synacor/synacor.cpp
@@ -24,12 +30,13 @@ add_library(SynacorLib
   lib/src/synacor/instructions.cpp
   lib/src/synacor/value.h
   lib/src/synacor/value.cpp)
-target_compile_options(SynacorLib PRIVATE -Wall -Wextra -Wpedantic -Werror -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wrestrict -Wnull-dereference -Wold-style-cast -Wuseless-cast -Wdouble-promotion -Wshadow -Wformat=2 -Wconversion -Wsign-conversion -Wfloat-equal -Wcast-qual -Winit-self -Wpointer-arith -Wswitch -Wswitch-enum -Woverloaded-virtual -Wundef)
+target_compile_options(SynacorLib PRIVATE ${SYNACOR_CXX_WARNINGS})
 target_include_directories(SynacorLib PUBLIC lib/inc PRIVATE lib/src)
 target_link_libraries(SynacorLib PRIVATE Boost::boost typesafe)
 
 add_executable(SynacorApp
   app/main.cpp)
+target_compile_options(SynacorApp PRIVATE ${SYNACOR_CXX_WARNINGS})
 target_link_libraries(SynacorApp PRIVATE SynacorLib Boost::boost Boost::program_options)
 
 
@@ -40,6 +47,7 @@ add_executable(SynacorTests
   tests/registers.cpp
   tests/value.cpp)
 target_include_directories(SynacorTests PRIVATE lib/src)
+target_compile_options(SynacorTests PRIVATE ${SYNACOR_CXX_WARNINGS})
 target_link_libraries(SynacorTests PRIVATE SynacorLib Boost::boost Boost::unit_test_framework typesafe)
 
 find_program(ClangFormat clang-format)
