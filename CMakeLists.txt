@@ -7,7 +7,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 include(cmake/thirdparties/boost.cmake)
 #include(cmake/thirdparties/rangev3.cmake)
-#include(cmake/thirdparties/typesafe.cmake)
+include(cmake/thirdparties/typesafe.cmake)
 
 if(MSVC)
   set(SYNACOR_CXX_WARNINGS /W4 /WX)
@@ -24,11 +24,13 @@ add_library(SynacorLib
   lib/src/synacor/stack.cpp
   lib/src/synacor/instructions.h
   lib/src/synacor/instructions.cpp
-  lib/src/synacor/value_storage.h
-  lib/src/synacor/value_storage.cpp)
+  lib/src/synacor/instructions_base.h
+  lib/src/synacor/instructions_base.cpp
+  lib/src/synacor/memory_storage.h
+  lib/src/synacor/memory_storage.cpp)
 target_compile_options(SynacorLib PRIVATE ${SYNACOR_CXX_WARNINGS})
 target_include_directories(SynacorLib PUBLIC lib/inc PRIVATE lib/src)
-target_link_libraries(SynacorLib PRIVATE Boost::boost) #typesafe
+target_link_libraries(SynacorLib PRIVATE Boost::boost typesafe)
 
 add_executable(SynacorApp
   app/main.cpp)
@@ -40,10 +42,10 @@ target_link_libraries(SynacorApp PRIVATE SynacorLib Boost::boost Boost::program_
 add_executable(SynacorTests
   tests/main.cpp
   tests/instructions.cpp
-  tests/value_storage.cpp)
+  tests/memory_storage.cpp)
 target_include_directories(SynacorTests PRIVATE lib/src)
 target_compile_options(SynacorTests PRIVATE ${SYNACOR_CXX_WARNINGS})
-target_link_libraries(SynacorTests PRIVATE SynacorLib Boost::boost Boost::unit_test_framework) #typesafe
+target_link_libraries(SynacorTests PRIVATE SynacorLib Boost::boost Boost::unit_test_framework typesafe)
 
 find_program(ClangFormat clang-format)
 if(ClangFormat)

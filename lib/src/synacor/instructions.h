@@ -1,32 +1,37 @@
 #pragma once
 
-#include <cstddef>
+#include "synacor/instructions_base.h"
 
 namespace synacor
 {
 
-class AddressSpace;
-class Stack;
-class Registers;
-
 namespace instructions
 {
 
-class Instruction
+class Set : TwoOpsInstruction
 {
 public:
-  using IndexType = size_t;
-
-  virtual ~Instruction()                                    = default;
-  virtual void execute( AddressSpace&, Stack&, Registers& ) = 0;
-};
-
-class Set : Instruction
-{
-public:
+  using TwoOpsInstruction::TwoOpsInstruction;
   static constexpr IndexType index = { 1 };
 
-  virtual void execute( AddressSpace&, Stack&, Registers& );
+  virtual void execute( MemoryStorage&, Stack& );
+};
+
+class Add : ThreeOpsInstruction
+{
+public:
+  using ThreeOpsInstruction::ThreeOpsInstruction;
+  static constexpr IndexType index = { 9 };
+
+  virtual void execute( MemoryStorage&, Stack& );
+};
+
+class Noop : Instruction
+{
+public:
+  static constexpr IndexType index = { 21 };
+
+  virtual void execute( MemoryStorage&, Stack& );
 };
 
 }  // namespace instructions
