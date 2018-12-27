@@ -15,15 +15,27 @@ class Instruction
 public:
   using IndexType = size_t;
 
-  virtual ~Instruction()                         = default;
-  virtual void execute( MemoryStorage&, Stack& ) = 0;
+  virtual ~Instruction()                                                     = default;
+  virtual Address execute( MemoryStorage&, Stack&, Address current_address ) = 0;
+};
+
+struct NoOpInstruction : Instruction
+{
+  Address calc_next_instruction_address( const Address addr ) const
+  {
+    return addr + Address( 1 );
+  }
 };
 
 struct OneOpInstruction : Instruction
 {
-public:
   OneOpInstruction( const Word wa ) : a( wa )
   {
+  }
+
+  Address calc_next_instruction_address( const Address addr ) const
+  {
+    return addr + Address( 2 );
   }
 
 protected:
@@ -32,9 +44,13 @@ protected:
 
 struct TwoOpsInstruction : Instruction
 {
-public:
   TwoOpsInstruction( const Word wa, const Word wb ) : a( wa ), b( wb )
   {
+  }
+
+  Address calc_next_instruction_address( const Address addr ) const
+  {
+    return addr + Address( 3 );
   }
 
 protected:
@@ -44,9 +60,13 @@ protected:
 
 struct ThreeOpsInstruction : Instruction
 {
-public:
   ThreeOpsInstruction( const Word wa, const Word wb, const Word wc ) : a( wa ), b( wb ), c( wc )
   {
+  }
+
+  Address calc_next_instruction_address( const Address addr ) const
+  {
+    return addr + Address( 4 );
   }
 
 protected:
@@ -57,4 +77,4 @@ protected:
 
 std::unique_ptr<Instruction> read_instruction( const MemoryStorage&, Address command_address );
 
-}
+}  // namespace synacor

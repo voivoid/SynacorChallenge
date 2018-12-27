@@ -42,7 +42,8 @@ target_link_libraries(SynacorApp PRIVATE SynacorLib Boost::boost Boost::program_
 add_executable(SynacorTests
   tests/main.cpp
   tests/instructions.cpp
-  tests/memory_storage.cpp)
+  tests/memory_storage.cpp
+  tests/stack.cpp)
 target_include_directories(SynacorTests PRIVATE lib/src)
 target_compile_options(SynacorTests PRIVATE ${SYNACOR_CXX_WARNINGS})
 target_link_libraries(SynacorTests PRIVATE SynacorLib Boost::boost Boost::unit_test_framework typesafe)

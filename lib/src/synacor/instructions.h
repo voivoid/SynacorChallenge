@@ -8,30 +8,43 @@ namespace synacor
 namespace instructions
 {
 
-class Set : TwoOpsInstruction
+struct Set : TwoOpsInstruction
 {
 public:
   using TwoOpsInstruction::TwoOpsInstruction;
   static constexpr IndexType index = { 1 };
-
-  virtual void execute( MemoryStorage&, Stack& );
+  virtual Address execute( MemoryStorage&, Stack&, Address current_address );
 };
 
-class Add : ThreeOpsInstruction
+struct Push : OneOpInstruction
+{
+public:
+  using OneOpInstruction::OneOpInstruction;
+  static constexpr IndexType index = { 2 };
+  virtual Address execute( MemoryStorage&, Stack&, Address current_address );
+};
+
+struct Pop : OneOpInstruction
+{
+public:
+  using OneOpInstruction::OneOpInstruction;
+  static constexpr IndexType index = { 3 };
+  virtual Address execute( MemoryStorage&, Stack&, Address current_address );
+};
+
+struct Add : ThreeOpsInstruction
 {
 public:
   using ThreeOpsInstruction::ThreeOpsInstruction;
   static constexpr IndexType index = { 9 };
-
-  virtual void execute( MemoryStorage&, Stack& );
+  virtual Address execute( MemoryStorage&, Stack&, Address current_address );
 };
 
-class Noop : Instruction
+struct Noop : NoOpInstruction
 {
 public:
   static constexpr IndexType index = { 21 };
-
-  virtual void execute( MemoryStorage&, Stack& );
+  virtual Address execute( MemoryStorage&, Stack&, Address current_address );
 };
 
 }  // namespace instructions

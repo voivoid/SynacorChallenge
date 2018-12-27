@@ -12,11 +12,14 @@ class MemoryStorage
 {
 public:
   MemoryStorage();
+  MemoryStorage( const MemoryStorage& rhs );
 
   Word read( Address address ) const;
   void store( Address address, Word number );
 
   Address get_register( size_t index ) const;
+
+  friend bool operator==( const MemoryStorage& m1, const MemoryStorage& m2 );
 
 private:
   size_t get_word_index( Address address ) const;

@@ -14,6 +14,10 @@ MemoryStorage::MemoryStorage() : storage( new StorageData{} )
 {
 }
 
+MemoryStorage::MemoryStorage( const MemoryStorage& rhs ) : storage( new StorageData{ *rhs.storage.get() } )
+{
+}
+
 Word MemoryStorage::read( Address address ) const
 {
   SYNACOR_ENSURE( is_valid_address( address ) );
@@ -71,6 +75,11 @@ Number get_value( MemoryStorage& memory, Word word )
   {
     SYNACOR_ENSURE( false );
   }
+}
+
+bool operator==( const MemoryStorage& m1, const MemoryStorage& m2 )
+{
+  return *m1.storage == *m2.storage;
 }
 
 }  // namespace synacor

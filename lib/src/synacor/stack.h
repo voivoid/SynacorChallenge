@@ -9,15 +9,20 @@ namespace synacor
 class Stack
 {
 public:
-  void push( Word word );
-  void pop();
+  Stack() = default;
+  Stack( const Stack& rhs );
 
-  Word top() const;
+  void push( Number word );
+  Number pop();
+
+  Number top() const;
 
   bool is_empty() const;
 
+  friend bool operator==( const Stack& s1, const Stack& s2 );
+
 private:
-  std::stack<Word> stack;
+  std::stack<Number> stack;
 };
 
 }  // namespace synacor
