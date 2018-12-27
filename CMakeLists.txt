@@ -17,17 +17,20 @@ endif()
 
 add_library(SynacorLib
   lib/inc/synacor/synacor.h
-  lib/src/synacor/synacor.cpp
-  lib/src/synacor/assert.h
+
   lib/src/synacor/arch.h
-  lib/src/synacor/stack.h
-  lib/src/synacor/stack.cpp
+  lib/src/synacor/assert.h
   lib/src/synacor/instructions.h
   lib/src/synacor/instructions.cpp
   lib/src/synacor/instructions_base.h
   lib/src/synacor/instructions_base.cpp
+  lib/src/synacor/machine.h
+  lib/src/synacor/machine.cpp
   lib/src/synacor/memory_storage.h
-  lib/src/synacor/memory_storage.cpp)
+  lib/src/synacor/memory_storage.cpp
+  lib/src/synacor/stack.h
+  lib/src/synacor/stack.cpp
+  lib/src/synacor/synacor.cpp)
 target_compile_options(SynacorLib PRIVATE ${SYNACOR_CXX_WARNINGS})
 target_include_directories(SynacorLib PUBLIC lib/inc PRIVATE lib/src)
 target_link_libraries(SynacorLib PRIVATE Boost::boost typesafe)
