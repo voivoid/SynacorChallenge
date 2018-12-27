@@ -4,11 +4,34 @@
 #include "synacor/memory_storage.h"
 #include "synacor/stack.h"
 
+#include <iostream>
+
+namespace
+{
+    bool is_valid_char( const synacor::Number n )
+    {
+        return n >= 0 && n <= 255;
+    }
+}
+
 namespace synacor
 {
 
 namespace instructions
 {
+
+std::ostream* OutputStream = nullptr;
+std::istream* InputStream = nullptr;
+
+void set_ostream( std::ostream* ostream )
+{
+    OutputStream = ostream;
+}
+
+void set_istream( std::istream* istream )
+{
+    InputStream = istream;
+}
 
 /*
    set: 1 a b
@@ -63,6 +86,25 @@ Address Add::execute( MemoryStorage& memory, Stack&, const Address current_addre
   memory.store( Address( a ), Word( get_value( memory, b ) + get_value( memory, c ) ) );
 
   return calc_next_instruction_address( current_address );
+}
+
+/*
+   out: 19 a
+   write the character represented by ascii code <a> to the terminal
+*/
+Address Out::execute(MemoryStorage & memory, Stack &, Address current_address)
+{
+    SYNACOR_ENSURE( is_valid_value( a ) );
+
+    const Number chr = get_value( memory, a );
+    SYNACOR_ENSURE( is_valid_char( chr ) );
+
+    if( OutputStream )
+    {
+        OutputStream->put( static_cast<char>( chr ) );
+    }
+
+    return calc_next_instruction_address( current_address );
 }
 
 /*

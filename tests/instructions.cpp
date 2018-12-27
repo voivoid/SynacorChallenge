@@ -6,6 +6,8 @@
 
 #include "boost/scope_exit.hpp"
 
+#include <sstream>
+
 struct InstructionsFixture
 {
   InstructionsFixture()
@@ -89,6 +91,45 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_pop, InstructionsFixture )
     BOOST_CHECK_EQUAL( memory.read( result_reg ), 42 );
 
     BOOST_CHECK( stack.is_empty() );
+}
+
+// ADD
+
+BOOST_FIXTURE_TEST_CASE( synacor_instructions_add, InstructionsFixture )
+{
+    CHECK_STACK_IS_NOT_CHANGED;
+
+    auto test = [this]( const Word from1, const Word from2, const Word expected ) {
+        exec<synacor::instructions::Add>( 4, Word( result_reg ), from1, from2 );
+
+        BOOST_CHECK_EQUAL( expected, memory.read( result_reg ) );
+    };
+
+    test( Word( reg_with_42_num ), Word( reg_with_42_num ), 84 );
+    test( 100, 200, 300 );
+}
+
+// OUT
+BOOST_FIXTURE_TEST_CASE( synacor_instructions_out, InstructionsFixture )
+{
+    CHECK_MEMORY_IS_NOT_CHANGED;
+    CHECK_STACK_IS_NOT_CHANGED;
+
+    std::stringstream ss;
+    synacor::instructions::set_ostream( &ss );
+
+    BOOST_SCOPE_EXIT(void) {
+      synacor::instructions::set_ostream( nullptr );
+    } BOOST_SCOPE_EXIT_END;
+
+    auto test = [&ss, this]( const Word from, const char expected ) {
+        exec<synacor::instructions::Out>( 2, from );
+
+        BOOST_CHECK_EQUAL( expected, ss.get() );
+    };
+
+    test( Word( reg_with_42_num ), '*' );
+    test( 100, 'd' );
 }
 
 // NOOP
