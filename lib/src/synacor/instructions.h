@@ -31,6 +31,10 @@ SYNACOR_DEFINE_INSTRUCTION( Jmp, OneOpInstruction, 6 );
 SYNACOR_DEFINE_INSTRUCTION( Jt, TwoOpsInstruction, 7 );
 SYNACOR_DEFINE_INSTRUCTION( Jf, TwoOpsInstruction, 8 );
 SYNACOR_DEFINE_INSTRUCTION( Add, ThreeOpsInstruction, 9 );
+SYNACOR_DEFINE_INSTRUCTION( Mult, ThreeOpsInstruction, 10 );
+SYNACOR_DEFINE_INSTRUCTION( Mod, ThreeOpsInstruction, 11 );
+SYNACOR_DEFINE_INSTRUCTION( And, ThreeOpsInstruction, 12 );
+SYNACOR_DEFINE_INSTRUCTION( Or, ThreeOpsInstruction, 13 );
 SYNACOR_DEFINE_INSTRUCTION( Out, OneOpInstruction, 19 );
 SYNACOR_DEFINE_INSTRUCTION( Noop, NoOpInstruction, 21 );
 
