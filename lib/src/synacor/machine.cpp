@@ -1,5 +1,6 @@
 #include "synacor/synacor.h"
 
-namespace synacor {
+namespace synacor
+{
 
 }

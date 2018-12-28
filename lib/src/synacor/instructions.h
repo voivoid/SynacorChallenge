@@ -13,52 +13,26 @@ namespace instructions
 void set_ostream( std::ostream* );
 void set_istream( std::istream* );
 
-struct Set : TwoOpsInstruction
-{
-public:
-  using TwoOpsInstruction::TwoOpsInstruction;
-  static constexpr IndexType index = { 1 };
-  virtual Address execute( MemoryStorage&, Stack&, Address current_address ) override;
-};
+#define SYNACOR_DEFINE_INSTRUCTION( name, base, i )                                                                                        \
+  struct name : base                                                                                                                       \
+  {                                                                                                                                        \
+    using base::base;                                                                                                                      \
+    static constexpr IndexType index = { i };                                                                                              \
+    Address execute( MemoryStorage&, Stack&, Address ) override;                                                                           \
+  }
 
-struct Push : OneOpInstruction
-{
-public:
-  using OneOpInstruction::OneOpInstruction;
-  static constexpr IndexType index = { 2 };
-  virtual Address execute( MemoryStorage&, Stack&, Address current_address ) override;
-};
-
-struct Pop : OneOpInstruction
-{
-public:
-  using OneOpInstruction::OneOpInstruction;
-  static constexpr IndexType index = { 3 };
-  virtual Address execute( MemoryStorage&, Stack&, Address current_address ) override;
-};
-
-struct Add : ThreeOpsInstruction
-{
-public:
-  using ThreeOpsInstruction::ThreeOpsInstruction;
-  static constexpr IndexType index = { 9 };
-  virtual Address execute( MemoryStorage&, Stack&, Address current_address ) override;
-};
-
-struct Out : OneOpInstruction
-{
-public:
-    using OneOpInstruction::OneOpInstruction;
-    static constexpr IndexType index = { 19 };
-    virtual Address execute( MemoryStorage&, Stack&, Address current_address ) override;
-};
-
-struct Noop : NoOpInstruction
-{
-public:
-  static constexpr IndexType index = { 21 };
-  virtual Address execute( MemoryStorage&, Stack&, Address current_address ) override;
-};
+SYNACOR_DEFINE_INSTRUCTION( Halt, NoOpInstruction, 0 );
+SYNACOR_DEFINE_INSTRUCTION( Set, TwoOpsInstruction, 1 );
+SYNACOR_DEFINE_INSTRUCTION( Push, OneOpInstruction, 2 );
+SYNACOR_DEFINE_INSTRUCTION( Pop, OneOpInstruction, 3 );
+SYNACOR_DEFINE_INSTRUCTION( Eq, ThreeOpsInstruction, 4 );
+SYNACOR_DEFINE_INSTRUCTION( Gt, ThreeOpsInstruction, 5 );
+SYNACOR_DEFINE_INSTRUCTION( Jmp, OneOpInstruction, 6 );
+SYNACOR_DEFINE_INSTRUCTION( Jt, TwoOpsInstruction, 7 );
+SYNACOR_DEFINE_INSTRUCTION( Jf, TwoOpsInstruction, 8 );
+SYNACOR_DEFINE_INSTRUCTION( Add, ThreeOpsInstruction, 9 );
+SYNACOR_DEFINE_INSTRUCTION( Out, OneOpInstruction, 19 );
+SYNACOR_DEFINE_INSTRUCTION( Noop, NoOpInstruction, 21 );
 
 }  // namespace instructions
 

@@ -19,11 +19,16 @@ struct InstructionsFixture
   }
 
   template <typename Instruction, typename... Args>
-  void exec( short unsigned int instruction_size, Args... args)
+  void exec( short unsigned int instruction_size, Args... args )
   {
-      const synacor::Address instruction_addr{ 30000 };
-      const synacor::Address next_instruction_addr = Instruction{ args... }.execute( memory, stack, instruction_addr );
-      BOOST_CHECK( next_instruction_addr == instruction_addr + synacor::Address( instruction_size ) );
+    const synacor::Address instruction_addr{ 30000 };
+    const synacor::Address next_instruction_addr = Instruction{ args... }.execute( memory, stack, instruction_addr );
+    BOOST_CHECK( next_instruction_addr == instruction_addr + synacor::Address( instruction_size ) );
+  }
+
+  void check_result( const synacor::Word expected )
+  {
+      BOOST_CHECK_EQUAL( expected, memory.read( result_reg ) );
   }
 
   synacor::MemoryStorage memory;
@@ -31,7 +36,6 @@ struct InstructionsFixture
 
   synacor::Address result_reg;
   synacor::Address reg_with_42_num;
-
 };
 
 #define CHECK_IS_NOT_CHANGED( var )                                                                                                        \
@@ -53,10 +57,10 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_set, InstructionsFixture )
   CHECK_STACK_IS_NOT_CHANGED;
 
   auto test = [this]( const Word from, const Word expected ) {
-     const Word to{ result_reg };
-     exec<synacor::instructions::Set>( 3, to, from );
+    const Word to{ result_reg };
+    exec<synacor::instructions::Set>( 3, to, from );
 
-     BOOST_CHECK_EQUAL( expected, memory.read( result_reg ) );
+    check_result( expected );
   };
 
   test( Word( reg_with_42_num ), 42 );
@@ -67,69 +71,126 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_set, InstructionsFixture )
 
 BOOST_FIXTURE_TEST_CASE( synacor_instructions_push, InstructionsFixture )
 {
-    CHECK_MEMORY_IS_NOT_CHANGED;
+  CHECK_MEMORY_IS_NOT_CHANGED;
 
-    auto test =[this]( const Word from, const Word expected ) {
-        exec<synacor::instructions::Push>( 2, from );
+  auto test = [this]( const Word from, const Word expected ) {
+    exec<synacor::instructions::Push>( 2, from );
 
-        BOOST_REQUIRE( !stack.is_empty() );
-        BOOST_CHECK_EQUAL( stack.top(), expected );
-    };
+    BOOST_REQUIRE( !stack.is_empty() );
+    BOOST_CHECK_EQUAL( stack.top(), expected );
+  };
 
-    test( Word( reg_with_42_num ), 42 );
-    test( 100, 100 );
+  test( Word( reg_with_42_num ), 42 );
+  test( 100, 100 );
 }
 
 // POP
 
 BOOST_FIXTURE_TEST_CASE( synacor_instructions_pop, InstructionsFixture )
 {
-    BOOST_CHECK( stack.is_empty() );
-    stack.push( 42 );
+  BOOST_CHECK( stack.is_empty() );
+  stack.push( 42 );
 
-    exec<synacor::instructions::Pop>( 2, Word( result_reg ) );
-    BOOST_CHECK_EQUAL( memory.read( result_reg ), 42 );
+  exec<synacor::instructions::Pop>( 2, Word( result_reg ) );
+  check_result( 42 );
 
-    BOOST_CHECK( stack.is_empty() );
+  BOOST_CHECK( stack.is_empty() );
+}
+
+// EQ
+BOOST_FIXTURE_TEST_CASE( synacor_instructions_eq, InstructionsFixture )
+{
+  CHECK_STACK_IS_NOT_CHANGED;
+
+  auto test = [this]( const Word from1, const Word from2, const Word expected ) {
+    exec<synacor::instructions::Eq>( 4, Word( result_reg ), from1, from2 );
+
+    check_result( expected );
+  };
+
+  test( Word( reg_with_42_num ), Word( reg_with_42_num ), 1 );
+  test( Word( reg_with_42_num ), 100, 0 );
+  test( 100, Word( reg_with_42_num ), 0 );
+  test( 100, 100, 1 );
+}
+
+// GT
+BOOST_FIXTURE_TEST_CASE( synacor_instructions_gt, InstructionsFixture )
+{
+  CHECK_STACK_IS_NOT_CHANGED;
+
+  auto test = [this]( const Word from1, const Word from2, const Word expected ) {
+    exec<synacor::instructions::Gt>( 4, Word( result_reg ), from1, from2 );
+
+    check_result( expected );
+  };
+
+  test( Word( reg_with_42_num ), Word( reg_with_42_num ), 0 );
+  test( Word( reg_with_42_num ), 10, 1 );
+  test( 100, Word( reg_with_42_num ), 1 );
+  test( 100, 100, 0 );
+}
+
+// JMP
+BOOST_FIXTURE_TEST_CASE( synacor_instructions_jmp, InstructionsFixture )
+{
+    CHECK_MEMORY_IS_NOT_CHANGED;
+    CHECK_STACK_IS_NOT_CHANGED;
+}
+
+// JT
+BOOST_FIXTURE_TEST_CASE( synacor_instructions_jt, InstructionsFixture )
+{
+    CHECK_MEMORY_IS_NOT_CHANGED;
+    CHECK_STACK_IS_NOT_CHANGED;
+}
+
+// JF
+BOOST_FIXTURE_TEST_CASE( synacor_instructions_jf, InstructionsFixture )
+{
+    CHECK_MEMORY_IS_NOT_CHANGED;
+    CHECK_STACK_IS_NOT_CHANGED;
 }
 
 // ADD
 
 BOOST_FIXTURE_TEST_CASE( synacor_instructions_add, InstructionsFixture )
 {
-    CHECK_STACK_IS_NOT_CHANGED;
+  CHECK_STACK_IS_NOT_CHANGED;
 
-    auto test = [this]( const Word from1, const Word from2, const Word expected ) {
-        exec<synacor::instructions::Add>( 4, Word( result_reg ), from1, from2 );
+  auto test = [this]( const Word from1, const Word from2, const Word expected ) {
+    exec<synacor::instructions::Add>( 4, Word( result_reg ), from1, from2 );
 
-        BOOST_CHECK_EQUAL( expected, memory.read( result_reg ) );
-    };
+    check_result( expected );
+  };
 
-    test( Word( reg_with_42_num ), Word( reg_with_42_num ), 84 );
-    test( 100, 200, 300 );
+  test( Word( reg_with_42_num ), Word( reg_with_42_num ), 84 );
+  test( 100, 200, 300 );
 }
 
 // OUT
 BOOST_FIXTURE_TEST_CASE( synacor_instructions_out, InstructionsFixture )
 {
-    CHECK_MEMORY_IS_NOT_CHANGED;
-    CHECK_STACK_IS_NOT_CHANGED;
+  CHECK_MEMORY_IS_NOT_CHANGED;
+  CHECK_STACK_IS_NOT_CHANGED;
 
-    std::stringstream ss;
-    synacor::instructions::set_ostream( &ss );
+  std::stringstream ss;
+  synacor::instructions::set_ostream( &ss );
 
-    BOOST_SCOPE_EXIT(void) {
-      synacor::instructions::set_ostream( nullptr );
-    } BOOST_SCOPE_EXIT_END;
+  BOOST_SCOPE_EXIT( void )
+  {
+    synacor::instructions::set_ostream( nullptr );
+  }
+  BOOST_SCOPE_EXIT_END;
 
-    auto test = [&ss, this]( const Word from, const char expected ) {
-        exec<synacor::instructions::Out>( 2, from );
+  auto test = [&ss, this]( const Word from, const char expected ) {
+    exec<synacor::instructions::Out>( 2, from );
 
-        BOOST_CHECK_EQUAL( expected, ss.get() );
-    };
+    BOOST_CHECK_EQUAL( expected, ss.get() );
+  };
 
-    test( Word( reg_with_42_num ), '*' );
-    test( 100, 'd' );
+  test( Word( reg_with_42_num ), '*' );
+  test( 100, 'd' );
 }
 
 // NOOP
