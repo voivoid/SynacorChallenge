@@ -4,6 +4,8 @@
 #include "synacor/instructions.h"
 #include "synacor/memory_storage.h"
 
+#include "boost/mp11.hpp"
+
 #include <type_traits>
 
 namespace
@@ -46,13 +48,38 @@ InstructionPtrIf<I, synacor::ThreeOpsInstruction> make_instruction( const synaco
   return std::make_unique<I>( a_op, b_op, c_op );
 }
 
+using InstructionsList = boost::mp11::mp_list<synacor::instructions::Halt,
+                                              synacor::instructions::Set,
+                                              synacor::instructions::Push,
+                                              synacor::instructions::Pop,
+                                              synacor::instructions::Eq,
+                                              synacor::instructions::Gt,
+                                              synacor::instructions::Jmp,
+                                              synacor::instructions::Jt,
+                                              synacor::instructions::Jf,
+                                              synacor::instructions::Add,
+                                              synacor::instructions::Mult,
+                                              synacor::instructions::Mod,
+                                              synacor::instructions::And,
+                                              synacor::instructions::Or,
+                                              synacor::instructions::Not,
+                                              synacor::instructions::RMem,
+                                              synacor::instructions::WMem,
+                                              synacor::instructions::Call,
+                                              synacor::instructions::Ret,
+                                              synacor::instructions::Out,
+                                              synacor::instructions::Noop>;
+
 std::map<synacor::Word, InstructionFactory> make_instructions_map()
 {
-  return { { synacor::instructions::Set::index, &make_instruction<synacor::instructions::Set> },
-           { synacor::instructions::Push::index, &make_instruction<synacor::instructions::Push> },
-           { synacor::instructions::Pop::index, &make_instruction<synacor::instructions::Pop> },
-           { synacor::instructions::Add::index, &make_instruction<synacor::instructions::Add> },
-           { synacor::instructions::Noop::index, &make_instruction<synacor::instructions::Noop> } };
+  std::map<synacor::Word, InstructionFactory> instructions_map;
+  // see https://stackoverflow.com/questions/24954220/boostmplfor-each-without-instantiating
+  //  boost::mp11::mp_for_each<InstructionsList>( [&instructions_map]( const auto& instruction ) {
+  //    using Instruction                      = decltype( instruction );
+  //    instructions_map[ Instruction::index ] = &make_instruction<Instruction>;
+  //  } );
+
+  return instructions_map;
 }
 }  // namespace
 
