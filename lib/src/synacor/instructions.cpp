@@ -13,39 +13,39 @@ bool is_valid_char( const synacor::Number n )
   return n >= 0 && n <= 255;
 }
 
-synacor::Number add_op( const synacor::Number b, const synacor::Number c)
+synacor::Number add_op( const synacor::Number b, const synacor::Number c )
 {
-    return b + c;
+  return b + c;
 }
 
-synacor::Number mult_op( const synacor::Number b, const synacor::Number c)
+synacor::Number mult_op( const synacor::Number b, const synacor::Number c )
 {
-    return b * c;
+  return b * c;
 }
 
-synacor::Number mod_op( const synacor::Number b, const synacor::Number c)
+synacor::Number mod_op( const synacor::Number b, const synacor::Number c )
 {
-    return b % c;
+  return b % c;
 }
 
-synacor::Number and_op( const synacor::Number b, const synacor::Number c)
+synacor::Number and_op( const synacor::Number b, const synacor::Number c )
 {
-    return b & c;
+  return b & c;
 }
 
-synacor::Number or_op( const synacor::Number b, const synacor::Number c)
+synacor::Number or_op( const synacor::Number b, const synacor::Number c )
 {
-    return b | c;
+  return b | c;
 }
 
-template <synacor::Number (*op)(synacor::Number, synacor::Number)>
+template <synacor::Number ( *op )( synacor::Number, synacor::Number )>
 void exec_arith_op( synacor::MemoryStorage& memory, const synacor::Word a, const synacor::Word b, const synacor::Word c )
 {
   SYNACOR_ENSURE( synacor::is_register( a ) );
   SYNACOR_ENSURE( synacor::is_valid_value( b ) );
   SYNACOR_ENSURE( synacor::is_valid_value( c ) );
 
-  memory.store( synacor::Address( a ), synacor::Word( get_value( memory, b ) + get_value( memory, c ) ) );
+  memory.store( synacor::Address( a ), synacor::Word( op( get_value( memory, b ), get_value( memory, c ) ) ) );
 }
 
 }  // namespace
@@ -73,9 +73,9 @@ void set_istream( std::istream* istream )
    halt: 0
    stop execution and terminate the program
 */
-Address Halt::execute(MemoryStorage &, Stack &, Address )
+Address Halt::execute( MemoryStorage&, Stack&, Address )
 {
-    return Address( 0 );
+  return Address( 0 );
 }
 
 /*
@@ -154,41 +154,41 @@ Address Gt::execute( MemoryStorage& memory, Stack&, Address current_address )
    jmp: 6 a
    jump to <a>
 */
-Address Jmp::execute(MemoryStorage& memory, Stack &, Address )
+Address Jmp::execute( MemoryStorage& memory, Stack&, Address )
 {
-    SYNACOR_ENSURE( is_valid_value( a ) );
+  SYNACOR_ENSURE( is_valid_value( a ) );
 
-    return Address( Word( get_value( memory, a ) ) );
+  return Address( Word( get_value( memory, a ) ) );
 }
 
 /*
    jt: 7 a b
    if <a> is nonzero, jump to <b>
 */
-Address Jt::execute(MemoryStorage& memory, Stack &, Address current_address )
+Address Jt::execute( MemoryStorage& memory, Stack&, Address current_address )
 {
-    SYNACOR_ENSURE( is_valid_value( a ) );
-    SYNACOR_ENSURE( is_valid_value( b ) );
+  SYNACOR_ENSURE( is_valid_value( a ) );
+  SYNACOR_ENSURE( is_valid_value( b ) );
 
-    const bool is_a_nonzero = get_value( memory, a ) != 0;
-    const Address b_addr = Address( Word( get_value( memory, b ) ) );
+  const bool is_a_nonzero = get_value( memory, a ) != 0;
+  const Address b_addr    = Address( Word( get_value( memory, b ) ) );
 
-    return is_a_nonzero ? b_addr : calc_next_instruction_address( current_address );
+  return is_a_nonzero ? b_addr : calc_next_instruction_address( current_address );
 }
 
 /*
    jf: 8 a b
    if <a> is zero, jump to <b>
 */
-Address Jf::execute(MemoryStorage& memory, Stack &, Address current_address )
+Address Jf::execute( MemoryStorage& memory, Stack&, Address current_address )
 {
-    SYNACOR_ENSURE( is_valid_value( a ) );
-    SYNACOR_ENSURE( is_valid_value( b ) );
+  SYNACOR_ENSURE( is_valid_value( a ) );
+  SYNACOR_ENSURE( is_valid_value( b ) );
 
-    const bool is_a_zero = get_value( memory, a ) == 0;
-    const Address b_addr = Address( Word( get_value( memory, b ) ) );
+  const bool is_a_zero = get_value( memory, a ) == 0;
+  const Address b_addr = Address( Word( get_value( memory, b ) ) );
 
-    return is_a_zero ? b_addr : calc_next_instruction_address( current_address );
+  return is_a_zero ? b_addr : calc_next_instruction_address( current_address );
 }
 
 /*
@@ -206,40 +206,40 @@ Address Add::execute( MemoryStorage& memory, Stack&, const Address current_addre
    store into <a> the product of <b> and <c> (modulo 32768)
 */
 
-Address Mult::execute(MemoryStorage &memory, Stack &, const Address current_address)
+Address Mult::execute( MemoryStorage& memory, Stack&, const Address current_address )
 {
-    exec_arith_op<&mult_op>( memory, a, b, c );
-    return calc_next_instruction_address( current_address );
+  exec_arith_op<&mult_op>( memory, a, b, c );
+  return calc_next_instruction_address( current_address );
 }
 
 /*
    mod: 11 a b c
    store into <a> the remainder of <b> divided by <c>
 */
-Address Mod::execute(MemoryStorage &memory, Stack &, const Address current_address)
+Address Mod::execute( MemoryStorage& memory, Stack&, const Address current_address )
 {
-    exec_arith_op<&mod_op>( memory, a, b, c );
-    return calc_next_instruction_address( current_address );
+  exec_arith_op<&mod_op>( memory, a, b, c );
+  return calc_next_instruction_address( current_address );
 }
 
 /*
    and: 12 a b c
    stores into <a> the bitwise and of <b> and <c>
 */
-Address And::execute(MemoryStorage &memory, Stack &, const Address current_address)
+Address And::execute( MemoryStorage& memory, Stack&, const Address current_address )
 {
-    exec_arith_op<&and_op>( memory, a, b, c );
-    return calc_next_instruction_address( current_address );
+  exec_arith_op<&and_op>( memory, a, b, c );
+  return calc_next_instruction_address( current_address );
 }
 
 /*
    or: 13 a b c
    stores into <a> the bitwise or of <b> and <c>
 */
-Address Or::execute(MemoryStorage &memory, Stack &, const Address current_address)
+Address Or::execute( MemoryStorage& memory, Stack&, const Address current_address )
 {
-    exec_arith_op<&or_op>( memory, a, b, c );
-    return calc_next_instruction_address( current_address );
+  exec_arith_op<&or_op>( memory, a, b, c );
+  return calc_next_instruction_address( current_address );
 }
 
 
