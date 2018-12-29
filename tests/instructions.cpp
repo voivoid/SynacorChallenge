@@ -253,35 +253,49 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_not, InstructionsFixture )
 // RMEM
 BOOST_FIXTURE_TEST_CASE( synacor_instructions_rmem, InstructionsFixture )
 {
-    CHECK_STACK_IS_NOT_CHANGED;
+  CHECK_STACK_IS_NOT_CHANGED;
 
-    memory.store( Address( 30000 ), 123 );
+  memory.store( Address( 30000 ), 123 );
 
-    BOOST_CHECK( !check_result_reg( 123 ) );
-    exec<synacor::instructions::RMem>( Word( result_reg ), Word( 30000 ) );
-    BOOST_CHECK( check_result_reg( 123 ) );
+  BOOST_CHECK( !check_result_reg( 123 ) );
+  exec<synacor::instructions::RMem>( Word( result_reg ), Word( 30000 ) );
+  BOOST_CHECK( check_result_reg( 123 ) );
 }
 
 // WMEM
 BOOST_FIXTURE_TEST_CASE( synacor_instructions_wmem, InstructionsFixture )
 {
-    CHECK_STACK_IS_NOT_CHANGED;
+  CHECK_STACK_IS_NOT_CHANGED;
 
-    BOOST_CHECK( 42 != memory.read( Address( 30000 ) ) );
-    exec<synacor::instructions::WMem>( Word( 30000 ), Word( reg_with_42_num ) );
-    BOOST_CHECK( 42 == memory.read( Address( 30000 ) ) );
+  BOOST_CHECK( 42 != memory.read( Address( 30000 ) ) );
+  exec<synacor::instructions::WMem>( Word( 30000 ), Word( reg_with_42_num ) );
+  BOOST_CHECK( 42 == memory.read( Address( 30000 ) ) );
 }
 
 // CALL
 BOOST_FIXTURE_TEST_CASE( synacor_instructions_call, InstructionsFixture )
 {
-    CHECK_MEMORY_IS_NOT_CHANGED;
+  CHECK_MEMORY_IS_NOT_CHANGED;
+
+  BOOST_CHECK( stack.is_empty() );
+  BOOST_CHECK( Address( 10000 ) != instruction_addr );
+  const auto next_addr = exec<synacor::instructions::Call>( Word( 10000 ) );
+
+  BOOST_CHECK( next_addr == Address( 10000 ) );
+  BOOST_CHECK( !stack.is_empty() );
+  BOOST_CHECK( instruction_addr + Address( 2 ) == Address( Word( stack.pop() ) ) );
 }
 
 // RET
 BOOST_FIXTURE_TEST_CASE( synacor_instructions_ret, InstructionsFixture )
 {
-    CHECK_MEMORY_IS_NOT_CHANGED;
+  CHECK_MEMORY_IS_NOT_CHANGED;
+  CHECK_STACK_IS_NOT_CHANGED;
+
+  exec<synacor::instructions::Call>( Word( 10000 ) );
+  const auto next_addr = exec<synacor::instructions::Ret>();
+
+  BOOST_CHECK( instruction_addr + Address( 2 ) == next_addr );
 }
 
 // OUT

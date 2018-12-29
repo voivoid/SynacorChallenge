@@ -245,27 +245,27 @@ Address WMem::execute( MemoryStorage& memory, Stack&, Address current_address )
 call: 17 a
   write the address of the next instruction to the stack and jump to <a>
 */
-Address Call::execute(MemoryStorage& memory, Stack& stack, Address current_address )
+Address Call::execute( MemoryStorage& memory, Stack& stack, Address current_address )
 {
-    const Address next_instruction = calc_next_instruction_address( current_address );
-    stack.push( Word( next_instruction ) );
+  const Address next_instruction = calc_next_instruction_address( current_address );
+  stack.push( Word( next_instruction ) );
 
-    return Address( Word( get_value( memory, a ) ) );
+  return Address( Word( get_value( memory, a ) ) );
 }
 
 /*
 ret: 18
   remove the top element from the stack and jump to it; empty stack = halt
 */
-Address Ret::execute(MemoryStorage& memory, Stack & stack, Address current_address )
+Address Ret::execute( MemoryStorage& memory, Stack& stack, Address current_address )
 {
-    if( stack.is_empty() )
-    {
-        Halt{}.execute( memory, stack, current_address );
-        return calc_next_instruction_address( current_address );
-    }
+  if ( stack.is_empty() )
+  {
+    Halt{}.execute( memory, stack, current_address );
+    return calc_next_instruction_address( current_address );
+  }
 
-    return Address( Word( stack.pop() ) );
+  return Address( Word( stack.pop() ) );
 }
 
 /*
