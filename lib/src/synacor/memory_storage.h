@@ -31,7 +31,6 @@ private:
 
 bool is_number( Word word );
 bool is_register( Word word );
-bool is_valid_value( Word word );
 bool is_valid_address( Address address );
 
 Number get_value( MemoryStorage& memory, Word word );

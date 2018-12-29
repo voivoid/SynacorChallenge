@@ -21,18 +21,31 @@ struct InstructionsFixture
     return Instruction{ args... }.execute( memory, stack, instruction_addr );
   }
 
-  bool check_result( const synacor::Word expected )
+  bool check_result_reg( const synacor::Word expected )
   {
     return expected == memory.read( result_reg );
   }
 
   template <typename Instruction>
-  auto get_arithm_test_func()
+  auto get_unary_func_test()
+  {
+    const auto test = [this]( const synacor::Word from, const synacor::Word expected ) {
+      const auto next_addr = exec<Instruction>( synacor::Word( result_reg ), from );
+
+      BOOST_CHECK( check_result_reg( expected ) );
+      BOOST_CHECK( next_addr == instruction_addr + synacor::Address( 3 ) );
+    };
+
+    return test;
+  }
+
+  template <typename Instruction>
+  auto get_binary_func_test()
   {
     const auto test = [this]( const synacor::Word from1, const synacor::Word from2, const synacor::Word expected ) {
       const auto next_addr = exec<Instruction>( synacor::Word( result_reg ), from1, from2 );
 
-      BOOST_CHECK( check_result( expected ) );
+      BOOST_CHECK( check_result_reg( expected ) );
       BOOST_CHECK( next_addr == instruction_addr + synacor::Address( 4 ) );
     };
 
@@ -65,13 +78,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_set, InstructionsFixture )
 {
   CHECK_STACK_IS_NOT_CHANGED;
 
-  const auto test = [this]( const Word from, const Word expected ) {
-    const Word to{ result_reg };
-    const auto next_addr = exec<synacor::instructions::Set>( to, from );
-
-    BOOST_CHECK( next_addr == instruction_addr + Address( 3 ) );
-    BOOST_CHECK( check_result( expected ) );
-  };
+  const auto test = get_unary_func_test<synacor::instructions::Set>();
 
   test( Word( reg_with_42_num ), 42 );
   test( 100, 100 );
@@ -103,7 +110,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_pop, InstructionsFixture )
   stack.push( 42 );
 
   const auto next_addr = exec<synacor::instructions::Pop>( Word( result_reg ) );
-  BOOST_CHECK( check_result( 42 ) );
+  BOOST_CHECK( check_result_reg( 42 ) );
 
   BOOST_CHECK( stack.is_empty() );
   BOOST_CHECK( next_addr == instruction_addr + Address( 2 ) );
@@ -114,12 +121,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_eq, InstructionsFixture )
 {
   CHECK_STACK_IS_NOT_CHANGED;
 
-  const auto test = [this]( const Word from1, const Word from2, const Word expected ) {
-    const auto next_addr = exec<synacor::instructions::Eq>( Word( result_reg ), from1, from2 );
-
-    BOOST_CHECK( check_result( expected ) );
-    BOOST_CHECK( next_addr == instruction_addr + Address( 4 ) );
-  };
+  const auto test = get_binary_func_test<synacor::instructions::Eq>();
 
   test( Word( reg_with_42_num ), Word( reg_with_42_num ), 1 );
   test( Word( reg_with_42_num ), 100, 0 );
@@ -132,12 +134,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_gt, InstructionsFixture )
 {
   CHECK_STACK_IS_NOT_CHANGED;
 
-  const auto test = [this]( const Word from1, const Word from2, const Word expected ) {
-    const auto next_addr = exec<synacor::instructions::Gt>( Word( result_reg ), from1, from2 );
-
-    BOOST_CHECK( check_result( expected ) );
-    BOOST_CHECK( next_addr == instruction_addr + Address( 4 ) );
-  };
+  const auto test = get_binary_func_test<synacor::instructions::Gt>();
 
   test( Word( reg_with_42_num ), Word( reg_with_42_num ), 0 );
   test( Word( reg_with_42_num ), 10, 1 );
@@ -192,7 +189,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_add, InstructionsFixture )
 {
   CHECK_STACK_IS_NOT_CHANGED;
 
-  const auto test = get_arithm_test_func<synacor::instructions::Add>();
+  const auto test = get_binary_func_test<synacor::instructions::Add>();
   test( Word( reg_with_42_num ), Word( reg_with_42_num ), 84 );
   test( 100, 200, 300 );
   test( 32758, 15, 5 );
@@ -203,7 +200,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_mult, InstructionsFixture )
 {
   CHECK_STACK_IS_NOT_CHANGED;
 
-  const auto test = get_arithm_test_func<synacor::instructions::Mult>();
+  const auto test = get_binary_func_test<synacor::instructions::Mult>();
   test( Word( reg_with_42_num ), Word( reg_with_42_num ), 1764 );
   test( 100, 200, 20000 );
   test( 32758, 15, 32618 );
@@ -214,7 +211,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_mod, InstructionsFixture )
 {
   CHECK_STACK_IS_NOT_CHANGED;
 
-  const auto test = get_arithm_test_func<synacor::instructions::Mod>();
+  const auto test = get_binary_func_test<synacor::instructions::Mod>();
   test( Word( reg_with_42_num ), Word( reg_with_42_num ), 0 );
   test( 100, 200, 100 );
   test( 32758, 15, 13 );
@@ -225,7 +222,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_and, InstructionsFixture )
 {
   CHECK_STACK_IS_NOT_CHANGED;
 
-  const auto test = get_arithm_test_func<synacor::instructions::And>();
+  const auto test = get_binary_func_test<synacor::instructions::And>();
   test( Word( reg_with_42_num ), Word( reg_with_42_num ), 42 );
   test( 100, 200, 64 );
   test( 32758, 15, 6 );
@@ -236,10 +233,43 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_or, InstructionsFixture )
 {
   CHECK_STACK_IS_NOT_CHANGED;
 
-  const auto test = get_arithm_test_func<synacor::instructions::Or>();
+  const auto test = get_binary_func_test<synacor::instructions::Or>();
   test( Word( reg_with_42_num ), Word( reg_with_42_num ), 42 );
   test( 100, 200, 236 );
   test( 32758, 15, 32767 );
+}
+
+// NOT
+BOOST_FIXTURE_TEST_CASE( synacor_instructions_not, InstructionsFixture )
+{
+  CHECK_STACK_IS_NOT_CHANGED;
+
+  const auto test = get_unary_func_test<synacor::instructions::Not>();
+  test( Word( reg_with_42_num ), 32725 );
+  test( 100, 32667 );
+  test( 0, 32767 );
+}
+
+// RMEM
+BOOST_FIXTURE_TEST_CASE( synacor_instructions_rmem, InstructionsFixture )
+{
+    CHECK_STACK_IS_NOT_CHANGED;
+
+    memory.store( Address( 30000 ), 123 );
+
+    BOOST_CHECK( !check_result_reg( 123 ) );
+    exec<synacor::instructions::RMem>( Word( result_reg ), Word( 30000 ) );
+    BOOST_CHECK( check_result_reg( 123 ) );
+}
+
+// WMEM
+BOOST_FIXTURE_TEST_CASE( synacor_instructions_wmem, InstructionsFixture )
+{
+    CHECK_STACK_IS_NOT_CHANGED;
+
+    BOOST_CHECK( 42 != memory.read( Address( 30000 ) ) );
+    exec<synacor::instructions::WMem>( Word( 30000 ), Word( reg_with_42_num ) );
+    BOOST_CHECK( 42 == memory.read( Address( 30000 ) ) );
 }
 
 // OUT

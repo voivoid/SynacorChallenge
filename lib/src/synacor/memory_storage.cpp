@@ -51,14 +51,9 @@ bool is_register( const Word word )
   return !is_number( word ) && word <= max_number + RegistersCount;
 }
 
-bool is_valid_value( const Word word )
-{
-  return is_number( word ) || is_register( word );
-}
-
 bool is_valid_address( const Address address )
 {
-  return is_valid_value( Word( address ) );
+  return is_number( Word( address ) ) || is_register( Word( address ) );
 }
 
 Number get_value( MemoryStorage& memory, Word word )
