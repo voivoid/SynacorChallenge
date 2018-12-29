@@ -272,6 +272,18 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_wmem, InstructionsFixture )
     BOOST_CHECK( 42 == memory.read( Address( 30000 ) ) );
 }
 
+// CALL
+BOOST_FIXTURE_TEST_CASE( synacor_instructions_call, InstructionsFixture )
+{
+    CHECK_MEMORY_IS_NOT_CHANGED;
+}
+
+// RET
+BOOST_FIXTURE_TEST_CASE( synacor_instructions_ret, InstructionsFixture )
+{
+    CHECK_MEMORY_IS_NOT_CHANGED;
+}
+
 // OUT
 BOOST_FIXTURE_TEST_CASE( synacor_instructions_out, InstructionsFixture )
 {
