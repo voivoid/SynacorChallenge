@@ -66,10 +66,8 @@ Number get_value( MemoryStorage& memory, Word word )
   {
     return memory.read( Address( word ) );
   }
-  else
-  {
-    SYNACOR_ENSURE( false );
-  }
+
+  throw std::runtime_error( "get_value failed due to invalid word content" );
 }
 
 bool operator==( const MemoryStorage& m1, const MemoryStorage& m2 )

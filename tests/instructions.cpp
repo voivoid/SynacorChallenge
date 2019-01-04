@@ -8,6 +8,10 @@
 
 #include <sstream>
 
+#ifdef _MSC_VER
+#pragma warning( disable : 4459 )
+#endif
+
 struct InstructionsFixture
 {
   InstructionsFixture()
