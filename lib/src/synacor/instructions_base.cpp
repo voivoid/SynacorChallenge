@@ -6,8 +6,8 @@
 
 #include "boost/mp11.hpp"
 
-#include <type_traits>
 #include <map>
+#include <type_traits>
 
 namespace
 {

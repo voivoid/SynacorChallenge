@@ -4,19 +4,29 @@
 
 #include <cstddef>
 
+#include <iosfwd>
+
 namespace synacor
 {
 
 class MemoryStorage;
 class Stack;
 
+struct Environment
+{
+  MemoryStorage& memory;
+  Stack& stack;
+  Address current_address;
+  std::iostream& iostream;
+};
+
 class Instruction
 {
 public:
   using IndexType = size_t;
 
-  virtual ~Instruction()                                                     = default;
-  virtual Address execute( MemoryStorage&, Stack&, Address current_address ) = 0;
+  virtual ~Instruction()                      = default;
+  virtual Address execute( Environment& env ) = 0;
 };
 
 struct NoOpInstruction : Instruction

@@ -9,7 +9,7 @@
 #include <sstream>
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4459 )
+#  pragma warning( disable : 4459 )
 #endif
 
 struct InstructionsFixture
@@ -22,7 +22,8 @@ struct InstructionsFixture
   template <typename Instruction, typename... Args>
   synacor::Address exec( Args... args )
   {
-    return Instruction{ args... }.execute( memory, stack, instruction_addr );
+    synacor::Environment env{ memory, stack, instruction_addr, io_ss };
+    return Instruction{ args... }.execute( env );
   }
 
   bool check_result_reg( const synacor::Word expected )
@@ -62,6 +63,7 @@ struct InstructionsFixture
   synacor::Address result_reg       = memory.get_register( 0 );
   synacor::Address reg_with_42_num  = memory.get_register( 1 );
   synacor::Address instruction_addr = synacor::Address{ 30000 };
+  std::stringstream io_ss;
 };
 
 #define CHECK_IS_NOT_CHANGED( var )                                                                                                        \
@@ -308,24 +310,33 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_out, InstructionsFixture )
   CHECK_MEMORY_IS_NOT_CHANGED;
   CHECK_STACK_IS_NOT_CHANGED;
 
-  std::stringstream ss;
-  synacor::instructions::set_ostream( &ss );
-
-  BOOST_SCOPE_EXIT( void )
-  {
-    synacor::instructions::set_ostream( nullptr );
-  }
-  BOOST_SCOPE_EXIT_END;
-
-  const auto test = [&ss, this]( const Word from, const char expected ) {
+  const auto test = [this]( const Word from, const char expected ) {
     const auto next_addr = exec<synacor::instructions::Out>( from );
 
-    BOOST_CHECK_EQUAL( expected, ss.get() );
+    BOOST_CHECK_EQUAL( expected, io_ss.get() );
     BOOST_CHECK( next_addr == instruction_addr + Address( 2 ) );
   };
 
   test( Word( reg_with_42_num ), '*' );
   test( 100, 'd' );
+}
+
+// IN
+BOOST_FIXTURE_TEST_CASE( synacor_instructions_in, InstructionsFixture )
+{
+  CHECK_STACK_IS_NOT_CHANGED;
+
+  const auto test = [this]( const char expected ) {
+    const auto next_addr = exec<synacor::instructions::In>( Word( result_reg ) );
+
+    BOOST_CHECK( check_result_reg( Word( expected ) ) );
+    BOOST_CHECK( next_addr == instruction_addr + Address( 2 ) );
+  };
+
+  io_ss << "abc";
+  test( 'a' );
+  test( 'b' );
+  test( 'c' );
 }
 
 // NOOP
