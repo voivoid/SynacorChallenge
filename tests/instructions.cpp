@@ -22,8 +22,8 @@ struct InstructionsFixture
   template <typename Instruction, typename... Args>
   synacor::Address exec( Args... args )
   {
-    synacor::Environment env{ memory, stack, instruction_addr, io_ss };
-    return Instruction{ args... }.execute( env );
+    synacor::Machine machine{ memory, stack, instruction_addr, io_ss, io_ss };
+    return Instruction{ args... }.execute( machine );
   }
 
   bool check_result_reg( const synacor::Word expected )

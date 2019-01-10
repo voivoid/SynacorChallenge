@@ -33,7 +33,7 @@ namespace instructions
    halt: 0
    stop execution and terminate the program
 */
-Address Halt::execute( Environment& )
+Address Halt::execute( Machine& )
 {
   return Address( 0 );
 }
@@ -42,7 +42,7 @@ Address Halt::execute( Environment& )
    set: 1 a b
    set register <a> to the value of <b>
 */
-Address Set::execute( Environment& env )
+Address Set::execute( Machine& env )
 {
   SYNACOR_ENSURE( is_register( a ) );
 
@@ -55,7 +55,7 @@ Address Set::execute( Environment& env )
    push: 2 a
    push <a> onto the stack
 */
-Address Push::execute( Environment& env )
+Address Push::execute( Machine& env )
 {
   env.stack.push( get_value( env.memory, a ) );
 
@@ -66,7 +66,7 @@ Address Push::execute( Environment& env )
    pop: 3 a
    remove the top element from the stack and write it into <a>; empty stack = error
 */
-Address Pop::execute( Environment& env )
+Address Pop::execute( Machine& env )
 {
   SYNACOR_ENSURE( !env.stack.is_empty() );
   SYNACOR_ENSURE( is_register( a ) );
@@ -80,7 +80,7 @@ Address Pop::execute( Environment& env )
    eq: 4 a b c
    set <a> to 1 if <b> is equal to <c>; set it to 0 otherwise
 */
-Address Eq::execute( Environment& env )
+Address Eq::execute( Machine& env )
 {
   SYNACOR_ENSURE( is_register( a ) );
 
@@ -94,7 +94,7 @@ Address Eq::execute( Environment& env )
    gt: 5 a b c
    set <a> to 1 if <b> is greater than <c>; set it to 0 otherwise
 */
-Address Gt::execute( Environment& env )
+Address Gt::execute( Machine& env )
 {
   SYNACOR_ENSURE( is_register( a ) );
 
@@ -108,7 +108,7 @@ Address Gt::execute( Environment& env )
    jmp: 6 a
    jump to <a>
 */
-Address Jmp::execute( Environment& env )
+Address Jmp::execute( Machine& env )
 {
   return Address( Word( get_value( env.memory, a ) ) );
 }
@@ -117,7 +117,7 @@ Address Jmp::execute( Environment& env )
    jt: 7 a b
    if <a> is nonzero, jump to <b>
 */
-Address Jt::execute( Environment& env )
+Address Jt::execute( Machine& env )
 {
   const bool is_a_nonzero = get_value( env.memory, a ) != 0;
   const Address b_addr    = Address( Word( get_value( env.memory, b ) ) );
@@ -129,7 +129,7 @@ Address Jt::execute( Environment& env )
    jf: 8 a b
    if <a> is zero, jump to <b>
 */
-Address Jf::execute( Environment& env )
+Address Jf::execute( Machine& env )
 {
   const bool is_a_zero = get_value( env.memory, a ) == 0;
   const Address b_addr = Address( Word( get_value( env.memory, b ) ) );
@@ -141,7 +141,7 @@ Address Jf::execute( Environment& env )
    add: 9 a b c
    assign into <a> the sum of <b> and <c> (modulo 32768)
 */
-Address Add::execute( Environment& env )
+Address Add::execute( Machine& env )
 {
   exec_arith_op<std::plus<Number>>( env.memory, a, b, c );
   return calc_next_instruction_address( env.current_address );
@@ -152,7 +152,7 @@ Address Add::execute( Environment& env )
    store into <a> the product of <b> and <c> (modulo 32768)
 */
 
-Address Mult::execute( Environment& env )
+Address Mult::execute( Machine& env )
 {
   exec_arith_op<std::multiplies<Number>>( env.memory, a, b, c );
   return calc_next_instruction_address( env.current_address );
@@ -162,7 +162,7 @@ Address Mult::execute( Environment& env )
    mod: 11 a b c
    store into <a> the remainder of <b> divided by <c>
 */
-Address Mod::execute( Environment& env )
+Address Mod::execute( Machine& env )
 {
   exec_arith_op<std::modulus<Number>>( env.memory, a, b, c );
   return calc_next_instruction_address( env.current_address );
@@ -172,7 +172,7 @@ Address Mod::execute( Environment& env )
    and: 12 a b c
    stores into <a> the bitwise and of <b> and <c>
 */
-Address And::execute( Environment& env )
+Address And::execute( Machine& env )
 {
   exec_arith_op<std::bit_and<Number>>( env.memory, a, b, c );
   return calc_next_instruction_address( env.current_address );
@@ -182,7 +182,7 @@ Address And::execute( Environment& env )
    or: 13 a b c
    stores into <a> the bitwise or of <b> and <c>
 */
-Address Or::execute( Environment& env )
+Address Or::execute( Machine& env )
 {
   exec_arith_op<std::bit_or<Number>>( env.memory, a, b, c );
   return calc_next_instruction_address( env.current_address );
@@ -192,7 +192,7 @@ Address Or::execute( Environment& env )
    not: 14 a b
    stores 15-bit bitwise inverse of <b> in <a>
 */
-Address Not::execute( Environment& env )
+Address Not::execute( Machine& env )
 {
   SYNACOR_ENSURE( is_register( a ) );
 
@@ -205,7 +205,7 @@ Address Not::execute( Environment& env )
    rmem: 15 a b
    read memory at address <b> and write it to <a>
 */
-Address RMem::execute( Environment& env )
+Address RMem::execute( Machine& env )
 {
   SYNACOR_ENSURE( is_register( a ) );
   SYNACOR_ENSURE( is_valid_address( Address( b ) ) );
@@ -219,7 +219,7 @@ Address RMem::execute( Environment& env )
    wmem: 16 a b
    write the value from <b> into memory at address <a>
 */
-Address WMem::execute( Environment& env )
+Address WMem::execute( Machine& env )
 {
   SYNACOR_ENSURE( is_valid_address( Address( a ) ) );
 
@@ -232,7 +232,7 @@ Address WMem::execute( Environment& env )
 call: 17 a
   write the address of the next instruction to the stack and jump to <a>
 */
-Address Call::execute( Environment& env )
+Address Call::execute( Machine& env )
 {
   const Address next_instruction = calc_next_instruction_address( env.current_address );
   env.stack.push( Word( next_instruction ) );
@@ -244,7 +244,7 @@ Address Call::execute( Environment& env )
 ret: 18
   remove the top element from the stack and jump to it; empty stack = halt
 */
-Address Ret::execute( Environment& env )
+Address Ret::execute( Machine& env )
 {
   if ( env.stack.is_empty() )
   {
@@ -259,12 +259,12 @@ Address Ret::execute( Environment& env )
    out: 19 a
    write the character represented by ascii code <a> to the terminal
 */
-Address Out::execute( Environment& env )
+Address Out::execute( Machine& env )
 {
   const Number chr = get_value( env.memory, a );
   SYNACOR_ENSURE( is_valid_char( chr ) );
 
-  env.iostream.put( static_cast<char>( chr ) );
+  env.ostream.put( static_cast<char>( chr ) );
 
   return calc_next_instruction_address( env.current_address );
 }
@@ -275,11 +275,11 @@ Address Out::execute( Environment& env )
    it can be assumed that once input starts, it will continue until a newline is encountered;
    this means that you can safely read whole lines from the keyboard and trust that they will be fully read
 */
-Address In::execute( Environment& env )
+Address In::execute( Machine& env )
 {
   SYNACOR_ENSURE( is_register( a ) );
 
-  const auto chr = env.iostream.get();
+  const auto chr = env.istream.get();
   SYNACOR_ENSURE( is_valid_char( chr ) );
   env.memory.store( Address( a ), Word( chr ) );
 
@@ -290,7 +290,7 @@ Address In::execute( Environment& env )
    noop: 21
    no operation
 */
-Address Noop::execute( Environment& env )
+Address Noop::execute( Machine& env )
 {
   return calc_next_instruction_address( env.current_address );
 }

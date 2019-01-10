@@ -12,7 +12,7 @@ namespace instructions
   {                                                                                                                                        \
     using base::base;                                                                                                                      \
     static constexpr IndexType index = { i };                                                                                              \
-    Address execute( Environment& env ) override;                                                                                          \
+    Address execute( Machine& env ) override;                                                                                              \
   }
 
 SYNACOR_DEFINE_INSTRUCTION( Halt, NoOpInstruction, 0 );

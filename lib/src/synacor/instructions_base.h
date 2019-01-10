@@ -1,10 +1,9 @@
 #pragma once
 
 #include "synacor/arch.h"
+#include "synacor/machine.h"
 
 #include <cstddef>
-
-#include <iosfwd>
 
 namespace synacor
 {
@@ -12,21 +11,13 @@ namespace synacor
 class MemoryStorage;
 class Stack;
 
-struct Environment
-{
-  MemoryStorage& memory;
-  Stack& stack;
-  Address current_address;
-  std::iostream& iostream;
-};
-
 class Instruction
 {
 public:
   using IndexType = size_t;
 
-  virtual ~Instruction()                      = default;
-  virtual Address execute( Environment& env ) = 0;
+  virtual ~Instruction()                  = default;
+  virtual Address execute( Machine& env ) = 0;
 };
 
 struct NoOpInstruction : Instruction

@@ -71,14 +71,27 @@ using InstructionsList = boost::mp11::mp_list<synacor::instructions::Halt,
                                               synacor::instructions::Out,
                                               synacor::instructions::Noop>;
 
+template <typename T>
+using AddBoostType = boost::type<T>;
+
+template <typename T>
+struct get_boost_type;
+
+template <typename T>
+struct get_boost_type<boost::type<T>>
+{
+  using type = T;
+};
+
 std::map<synacor::Word, InstructionFactory> make_instructions_map()
 {
   std::map<synacor::Word, InstructionFactory> instructions_map;
-  // see https://stackoverflow.com/questions/24954220/boostmplfor-each-without-instantiating
-  //  boost::mp11::mp_for_each<InstructionsList>( [&instructions_map]( const auto& instruction ) {
-  //    using Instruction                      = decltype( instruction );
-  //    instructions_map[ Instruction::index ] = &make_instruction<Instruction>;
-  //  } );
+
+  using TypedInstructions = boost::mp11::mp_transform<AddBoostType, InstructionsList>;
+  boost::mp11::mp_for_each<TypedInstructions>( [&instructions_map]( auto v ) {
+    using Instruction                      = typename get_boost_type<decltype( v )>::type;
+    instructions_map[ Instruction::index ] = &make_instruction<Instruction>;
+  } );
 
   return instructions_map;
 }
@@ -89,9 +102,9 @@ namespace synacor
 
 std::unique_ptr<Instruction> read_instruction( const MemoryStorage& memory, const Address instruction_address )
 {
-  const auto cmd_id                                               = memory.read( instruction_address );
-  const std::map<Word, InstructionFactory> instructions_factories = make_instructions_map();
+  static const std::map<Word, InstructionFactory> instructions_factories = make_instructions_map();
 
+  const auto cmd_id       = memory.read( instruction_address );
   const auto factory_iter = instructions_factories.find( cmd_id );
   SYNACOR_ENSURE( factory_iter != instructions_factories.cend() );
 
