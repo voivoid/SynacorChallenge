@@ -8,11 +8,7 @@ namespace synacor
 {
     void execute( std::byte* /*code*/ )
     {
-        MemoryStorage memory;
-        Stack stack;
-        Address address{ 0 };
-
-        Machine machine{ memory, stack, address, std::cin, std::cout };
+        Machine machine{ std::make_unique<MemoryStorage>(), std::make_unique<Stack>(), Address{ 0 }, std::cin, std::cout };
         execute( machine );
     }
 }

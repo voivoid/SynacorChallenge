@@ -25,7 +25,13 @@ namespace
 
 struct InstructionsFixture
 {
-  InstructionsFixture()
+  InstructionsFixture() : machine{ std::make_unique<synacor::MemoryStorage>(),
+                                   std::make_unique<synacor::Stack>(),
+                                   instruction_addr,
+                                   io_ss,
+                                   io_ss },
+                          memory{ *machine.memory },
+                          stack{ *machine.stack }
   {
     memory.store( memory.get_register( 1 ), 42 );
   }
@@ -33,7 +39,7 @@ struct InstructionsFixture
   template <typename Instruction, typename... Args>
   synacor::Address exec( Args... args )
   {
-    synacor::Machine machine{ memory, stack, instruction_addr, io_ss, io_ss };
+    //synacor::Machine machine{ memory, stack, instruction_addr, io_ss, io_ss };
     return Instruction{ args... }.execute( machine );
   }
 
@@ -68,13 +74,15 @@ struct InstructionsFixture
     return test;
   }
 
-  synacor::MemoryStorage memory;
-  synacor::Stack stack;
+  synacor::Address instruction_addr = synacor::Address{ 30000 };
+  std::stringstream io_ss;
+  synacor::Machine machine;
+
+  synacor::MemoryStorage& memory;
+  synacor::Stack& stack;
 
   synacor::Address result_reg       = memory.get_register( 0 );
   synacor::Address reg_with_42_num  = memory.get_register( 1 );
-  synacor::Address instruction_addr = synacor::Address{ 30000 };
-  std::stringstream io_ss;
 };
 
 #define CHECK_IS_NOT_CHANGED( var )                                                                                                        \
