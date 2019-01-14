@@ -4,5 +4,5 @@
 
 namespace synacor
 {
-    void execute( std::byte* code );
+void execute( std::byte* code );
 }

@@ -3,6 +3,7 @@
 #include "synacor/instructions.h"
 #include "synacor/memory_storage.h"
 #include "synacor/stack.h"
+#include "test_utils.h"
 
 #include "boost/scope_exit.hpp"
 
@@ -12,26 +13,15 @@
 #  pragma warning( disable : 4459 )
 #endif
 
-namespace synacor
-{
-std::ostream& operator<<( std::ostream& s, const synacor::Address addr )
-{
-    return s << addr;
-}
-}
-
 namespace
 {
 
 struct InstructionsFixture
 {
-  InstructionsFixture() : machine{ std::make_unique<synacor::MemoryStorage>(),
-                                   std::make_unique<synacor::Stack>(),
-                                   instruction_addr,
-                                   io_ss,
-                                   io_ss },
-                          memory{ *machine.memory },
-                          stack{ *machine.stack }
+  InstructionsFixture() :
+      machine{ std::make_unique<synacor::MemoryStorage>(), std::make_unique<synacor::Stack>(), instruction_addr, io_ss, io_ss },
+      memory{ *machine.memory },
+      stack{ *machine.stack }
   {
     memory.store( memory.get_register( 1 ), 42 );
   }
@@ -39,7 +29,7 @@ struct InstructionsFixture
   template <typename Instruction, typename... Args>
   synacor::Address exec( Args... args )
   {
-    //synacor::Machine machine{ memory, stack, instruction_addr, io_ss, io_ss };
+    // synacor::Machine machine{ memory, stack, instruction_addr, io_ss, io_ss };
     return Instruction{ args... }.execute( machine );
   }
 
@@ -81,8 +71,8 @@ struct InstructionsFixture
   synacor::MemoryStorage& memory;
   synacor::Stack& stack;
 
-  synacor::Address result_reg       = memory.get_register( 0 );
-  synacor::Address reg_with_42_num  = memory.get_register( 1 );
+  synacor::Address result_reg      = memory.get_register( 0 );
+  synacor::Address reg_with_42_num = memory.get_register( 1 );
 };
 
 #define CHECK_IS_NOT_CHANGED( var )                                                                                                        \
@@ -95,13 +85,26 @@ struct InstructionsFixture
 #define CHECK_MEMORY_IS_NOT_CHANGED CHECK_IS_NOT_CHANGED( memory )
 #define CHECK_STACK_IS_NOT_CHANGED CHECK_IS_NOT_CHANGED( stack )
 
-}
+}  // namespace
 
 using namespace synacor;
 
+BOOST_FIXTURE_TEST_SUITE( synacor_instructions_suite, InstructionsFixture )
+
+// HALT
+
+BOOST_AUTO_TEST_CASE( synacor_instructions_halt )
+{
+  CHECK_STACK_IS_NOT_CHANGED;
+  CHECK_MEMORY_IS_NOT_CHANGED;
+
+  const auto next_addr = exec<synacor::instructions::Halt>();
+  BOOST_CHECK_EQUAL( Address( 65535 ), next_addr );
+}
+
 // SET
 
-BOOST_FIXTURE_TEST_CASE( synacor_instructions_set, InstructionsFixture )
+BOOST_AUTO_TEST_CASE( synacor_instructions_set )
 {
   CHECK_STACK_IS_NOT_CHANGED;
 
@@ -113,7 +116,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_set, InstructionsFixture )
 
 // PUSH
 
-BOOST_FIXTURE_TEST_CASE( synacor_instructions_push, InstructionsFixture )
+BOOST_AUTO_TEST_CASE( synacor_instructions_push )
 {
   CHECK_MEMORY_IS_NOT_CHANGED;
 
@@ -131,7 +134,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_push, InstructionsFixture )
 
 // POP
 
-BOOST_FIXTURE_TEST_CASE( synacor_instructions_pop, InstructionsFixture )
+BOOST_AUTO_TEST_CASE( synacor_instructions_pop )
 {
   BOOST_CHECK( stack.is_empty() );
   stack.push( 42 );
@@ -144,7 +147,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_pop, InstructionsFixture )
 }
 
 // EQ
-BOOST_FIXTURE_TEST_CASE( synacor_instructions_eq, InstructionsFixture )
+BOOST_AUTO_TEST_CASE( synacor_instructions_eq )
 {
   CHECK_STACK_IS_NOT_CHANGED;
 
@@ -157,7 +160,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_eq, InstructionsFixture )
 }
 
 // GT
-BOOST_FIXTURE_TEST_CASE( synacor_instructions_gt, InstructionsFixture )
+BOOST_AUTO_TEST_CASE( synacor_instructions_gt )
 {
   CHECK_STACK_IS_NOT_CHANGED;
 
@@ -170,7 +173,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_gt, InstructionsFixture )
 }
 
 // JMP
-BOOST_FIXTURE_TEST_CASE( synacor_instructions_jmp, InstructionsFixture )
+BOOST_AUTO_TEST_CASE( synacor_instructions_jmp )
 {
   CHECK_MEMORY_IS_NOT_CHANGED;
   CHECK_STACK_IS_NOT_CHANGED;
@@ -180,7 +183,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_jmp, InstructionsFixture )
 }
 
 // JT
-BOOST_FIXTURE_TEST_CASE( synacor_instructions_jt, InstructionsFixture )
+BOOST_AUTO_TEST_CASE( synacor_instructions_jt )
 {
   CHECK_MEMORY_IS_NOT_CHANGED;
   CHECK_STACK_IS_NOT_CHANGED;
@@ -196,7 +199,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_jt, InstructionsFixture )
 }
 
 // JF
-BOOST_FIXTURE_TEST_CASE( synacor_instructions_jf, InstructionsFixture )
+BOOST_AUTO_TEST_CASE( synacor_instructions_jf )
 {
   CHECK_MEMORY_IS_NOT_CHANGED;
   CHECK_STACK_IS_NOT_CHANGED;
@@ -212,7 +215,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_jf, InstructionsFixture )
 }
 
 // ADD
-BOOST_FIXTURE_TEST_CASE( synacor_instructions_add, InstructionsFixture )
+BOOST_AUTO_TEST_CASE( synacor_instructions_add )
 {
   CHECK_STACK_IS_NOT_CHANGED;
 
@@ -223,7 +226,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_add, InstructionsFixture )
 }
 
 // MULT
-BOOST_FIXTURE_TEST_CASE( synacor_instructions_mult, InstructionsFixture )
+BOOST_AUTO_TEST_CASE( synacor_instructions_mult )
 {
   CHECK_STACK_IS_NOT_CHANGED;
 
@@ -234,7 +237,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_mult, InstructionsFixture )
 }
 
 // MOD
-BOOST_FIXTURE_TEST_CASE( synacor_instructions_mod, InstructionsFixture )
+BOOST_AUTO_TEST_CASE( synacor_instructions_mod )
 {
   CHECK_STACK_IS_NOT_CHANGED;
 
@@ -245,7 +248,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_mod, InstructionsFixture )
 }
 
 // AND
-BOOST_FIXTURE_TEST_CASE( synacor_instructions_and, InstructionsFixture )
+BOOST_AUTO_TEST_CASE( synacor_instructions_and )
 {
   CHECK_STACK_IS_NOT_CHANGED;
 
@@ -256,7 +259,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_and, InstructionsFixture )
 }
 
 // OR
-BOOST_FIXTURE_TEST_CASE( synacor_instructions_or, InstructionsFixture )
+BOOST_AUTO_TEST_CASE( synacor_instructions_or )
 {
   CHECK_STACK_IS_NOT_CHANGED;
 
@@ -267,7 +270,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_or, InstructionsFixture )
 }
 
 // NOT
-BOOST_FIXTURE_TEST_CASE( synacor_instructions_not, InstructionsFixture )
+BOOST_AUTO_TEST_CASE( synacor_instructions_not )
 {
   CHECK_STACK_IS_NOT_CHANGED;
 
@@ -278,7 +281,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_not, InstructionsFixture )
 }
 
 // RMEM
-BOOST_FIXTURE_TEST_CASE( synacor_instructions_rmem, InstructionsFixture )
+BOOST_AUTO_TEST_CASE( synacor_instructions_rmem )
 {
   CHECK_STACK_IS_NOT_CHANGED;
 
@@ -290,7 +293,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_rmem, InstructionsFixture )
 }
 
 // WMEM
-BOOST_FIXTURE_TEST_CASE( synacor_instructions_wmem, InstructionsFixture )
+BOOST_AUTO_TEST_CASE( synacor_instructions_wmem )
 {
   CHECK_STACK_IS_NOT_CHANGED;
 
@@ -300,7 +303,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_wmem, InstructionsFixture )
 }
 
 // CALL
-BOOST_FIXTURE_TEST_CASE( synacor_instructions_call, InstructionsFixture )
+BOOST_AUTO_TEST_CASE( synacor_instructions_call )
 {
   CHECK_MEMORY_IS_NOT_CHANGED;
 
@@ -314,7 +317,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_call, InstructionsFixture )
 }
 
 // RET
-BOOST_FIXTURE_TEST_CASE( synacor_instructions_ret, InstructionsFixture )
+BOOST_AUTO_TEST_CASE( synacor_instructions_ret )
 {
   CHECK_MEMORY_IS_NOT_CHANGED;
   CHECK_STACK_IS_NOT_CHANGED;
@@ -326,7 +329,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_ret, InstructionsFixture )
 }
 
 // OUT
-BOOST_FIXTURE_TEST_CASE( synacor_instructions_out, InstructionsFixture )
+BOOST_AUTO_TEST_CASE( synacor_instructions_out )
 {
   CHECK_MEMORY_IS_NOT_CHANGED;
   CHECK_STACK_IS_NOT_CHANGED;
@@ -343,7 +346,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_out, InstructionsFixture )
 }
 
 // IN
-BOOST_FIXTURE_TEST_CASE( synacor_instructions_in, InstructionsFixture )
+BOOST_AUTO_TEST_CASE( synacor_instructions_in )
 {
   CHECK_STACK_IS_NOT_CHANGED;
 
@@ -362,7 +365,7 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_in, InstructionsFixture )
 
 // NOOP
 
-BOOST_FIXTURE_TEST_CASE( synacor_instructions_noop, InstructionsFixture )
+BOOST_AUTO_TEST_CASE( synacor_instructions_noop )
 {
   CHECK_MEMORY_IS_NOT_CHANGED;
   CHECK_STACK_IS_NOT_CHANGED;
@@ -370,3 +373,5 @@ BOOST_FIXTURE_TEST_CASE( synacor_instructions_noop, InstructionsFixture )
   const auto next_addr = exec<synacor::instructions::Noop>();
   BOOST_CHECK_EQUAL( next_addr, instruction_addr + Address( 1 ) );
 }
+
+BOOST_AUTO_TEST_SUITE_END()

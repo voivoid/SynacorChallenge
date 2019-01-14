@@ -5,6 +5,7 @@
 #include "synacor/stack.h"
 
 #include <iostream>
+#include <limits>
 
 namespace
 {
@@ -35,7 +36,7 @@ namespace instructions
 */
 Address Halt::execute( Machine& )
 {
-  return Address( 0 );
+  return Address( std::numeric_limits<type_safe::underlying_type<synacor::Address>>::max() );
 }
 
 /*
