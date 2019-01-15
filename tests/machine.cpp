@@ -12,7 +12,7 @@
 struct MachineFixture
 {
   MachineFixture() :
-      machine{ std::make_unique<synacor::MemoryStorage>(), std::make_unique<synacor::Stack>(), synacor::Address( 0 ), io_ss, io_ss }
+      machine{ std::make_unique<synacor::MemoryStorage>(), std::make_unique<synacor::Stack>(), io_ss, io_ss }
   {
   }
 
@@ -39,14 +39,12 @@ BOOST_AUTO_TEST_CASE( synacor_machine_simple_halt_test )
 {
   write_to_mem( { 0 } );
   execute();
-  BOOST_CHECK_EQUAL( synacor::Address{ 65535 }, machine.current_address );
 }
 
 BOOST_AUTO_TEST_CASE( synacor_machine_arch_spec_test )
 {
   write_to_mem( { 9, 32768, 32769, 4, 19, 32768, 0 }, synacor::Address{ 0 } );
   execute();
-  BOOST_CHECK_EQUAL( synacor::Address{ 65535 }, machine.current_address );
 
   BOOST_CHECK_EQUAL( std::string( "\x04" ), io_ss.str() );
 }

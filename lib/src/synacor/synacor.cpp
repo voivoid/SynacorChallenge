@@ -19,7 +19,7 @@ namespace synacor
 {
 void execute( const std::byte* const memory_data, const size_t memory_data_size )
 {
-  Machine machine{ std::make_unique<MemoryStorage>(), std::make_unique<Stack>(), Address{ 0 }, std::cin, std::cout };
+  Machine machine{ std::make_unique<MemoryStorage>(), std::make_unique<Stack>(), std::cin, std::cout };
   load_memory( *machine.memory, memory_data, memory_data_size );
 
   run( machine );

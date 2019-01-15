@@ -19,7 +19,7 @@ namespace
 struct InstructionsFixture
 {
   InstructionsFixture() :
-      machine{ std::make_unique<synacor::MemoryStorage>(), std::make_unique<synacor::Stack>(), instruction_addr, io_ss, io_ss },
+      machine{ std::make_unique<synacor::MemoryStorage>(), std::make_unique<synacor::Stack>(), io_ss, io_ss },
       memory{ *machine.memory },
       stack{ *machine.stack }
   {
@@ -29,8 +29,7 @@ struct InstructionsFixture
   template <typename Instruction, typename... Args>
   synacor::Address exec( Args... args )
   {
-    // synacor::Machine machine{ memory, stack, instruction_addr, io_ss, io_ss };
-    return Instruction{ args... }.execute( machine );
+    return Instruction{ args... }.execute( machine, instruction_addr );
   }
 
   synacor::Word read_result_reg()

@@ -17,7 +17,7 @@ public:
   using IndexType = size_t;
 
   virtual ~Instruction()                  = default;
-  virtual Address execute( Machine& env ) = 0;
+  virtual Address execute( Machine& machine, Address current_address ) = 0;
 };
 
 struct NoOpInstruction : Instruction
