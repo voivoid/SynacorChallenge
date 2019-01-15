@@ -211,7 +211,8 @@ Address RMem::execute( Machine& machine )
   SYNACOR_ENSURE( is_register( a ) );
   SYNACOR_ENSURE( is_valid_address( Address( b ) ) );
 
-  machine.memory->store( Address( a ), machine.memory->read( Address( b ) ) );
+  const Address addr_to_read = Address( Word( get_value( *machine.memory, b ) ) );
+  machine.memory->store( Address( a ), machine.memory->read( addr_to_read ) );
 
   return calc_next_instruction_address( machine.current_address );
 }
@@ -223,8 +224,10 @@ Address RMem::execute( Machine& machine )
 Address WMem::execute( Machine& machine )
 {
   SYNACOR_ENSURE( is_valid_address( Address( a ) ) );
+  SYNACOR_ENSURE( is_valid_address( Address( b ) ) );
 
-  machine.memory->store( Address( a ), Word( get_value( *machine.memory, b ) ) );
+  const Address addr_to_write_to = Address( Word( get_value( *machine.memory, a ) ) );
+  machine.memory->store( addr_to_write_to, Word( get_value( *machine.memory, b ) ) );
 
   return calc_next_instruction_address( machine.current_address );
 }

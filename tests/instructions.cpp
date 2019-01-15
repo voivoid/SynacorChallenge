@@ -286,10 +286,14 @@ BOOST_AUTO_TEST_CASE( synacor_instructions_rmem )
   CHECK_STACK_IS_NOT_CHANGED;
 
   memory.store( Address( 30000 ), 123 );
-
   BOOST_CHECK_NE( 123, read_result_reg() );
   exec<synacor::instructions::RMem>( Word( result_reg ), Word( 30000 ) );
   BOOST_CHECK_EQUAL( 123, read_result_reg() );
+
+  memory.store( Address( 42 ), 4242 );
+  BOOST_CHECK_NE( 4242, read_result_reg() );
+  exec<synacor::instructions::RMem>( Word( result_reg ), Word( reg_with_42_num ) );
+  BOOST_CHECK_EQUAL( 4242, read_result_reg() );
 }
 
 // WMEM
@@ -300,6 +304,10 @@ BOOST_AUTO_TEST_CASE( synacor_instructions_wmem )
   BOOST_CHECK_NE( 42, memory.read( Address( 30000 ) ) );
   exec<synacor::instructions::WMem>( Word( 30000 ), Word( reg_with_42_num ) );
   BOOST_CHECK_EQUAL( 42, memory.read( Address( 30000 ) ) );
+
+  BOOST_CHECK_NE( 12345, memory.read( Address( 42 ) ) );
+  exec<synacor::instructions::WMem>( Word( reg_with_42_num ), Word( 12345 ) );
+  BOOST_CHECK_EQUAL( 12345, memory.read( Address( 42 ) ) );
 }
 
 // CALL

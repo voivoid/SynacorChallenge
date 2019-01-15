@@ -69,6 +69,7 @@ using InstructionsList = boost::mp11::mp_list<synacor::instructions::Halt,
                                               synacor::instructions::Call,
                                               synacor::instructions::Ret,
                                               synacor::instructions::Out,
+                                              synacor::instructions::In,
                                               synacor::instructions::Noop>;
 
 template <typename T>
