@@ -4,5 +4,5 @@
 
 namespace synacor
 {
-void execute( std::byte* code );
+void execute( const std::byte* memory_data, size_t memory_data_size );
 }

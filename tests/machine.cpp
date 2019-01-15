@@ -26,7 +26,7 @@ struct MachineFixture
 
   void execute()
   {
-    synacor::execute( machine );
+    synacor::run( machine );
   }
 
   synacor::Machine machine;

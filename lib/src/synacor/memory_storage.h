@@ -1,9 +1,11 @@
 #pragma once
 
 #include "synacor/arch.h"
+#include "synacor/assert.h"
 
 #include <array>
 #include <memory>
+#include <algorithm>
 
 namespace synacor
 {
@@ -18,6 +20,13 @@ public:
   void store( Address address, Word number );
 
   Address get_register( size_t index ) const;
+
+  template <typename Iter>
+  void load_memory( Iter begin, Iter end )
+  {
+      SYNACOR_ENSURE( static_cast<size_t>( std::distance( begin, end ) ) <= AddressSpaceSize );
+      std::copy( begin, end, storage->begin() );
+  }
 
   friend bool operator==( const MemoryStorage& m1, const MemoryStorage& m2 );
 

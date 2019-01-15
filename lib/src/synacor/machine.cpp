@@ -4,7 +4,7 @@
 
 namespace synacor
 {
-void execute( Machine& machine )
+void run( Machine& machine )
 {
   while ( is_valid_address( machine.current_address ) )
   {

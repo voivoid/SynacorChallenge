@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 set(BoostVersion "1.69.0")
-set(BoostLibs test program_options)
+set(BoostLibs test program_options iostreams)
 set(BoostSHA256 9a2c2819310839ea373f42d69e733c339b4e9a19deab6bfec448281554aa4dbb)
 
 
@@ -71,6 +71,7 @@ if(MSVC)
 endif()
 
 add_library(Boost::program_options STATIC IMPORTED)
+add_library(Boost::iostreams STATIC IMPORTED)
 add_library(Boost::unit_test_framework STATIC IMPORTED)
 
 macro(set_boost_libs_location Component)
@@ -93,8 +94,10 @@ macro(set_boost_libs_location Component)
 endmacro()
 
 set_boost_libs_location(program_options)
+set_boost_libs_location(iostreams)
 set_boost_libs_location(unit_test_framework)
 
 add_dependencies(boost_headers get_boost)
 add_dependencies(Boost::program_options get_boost)
+add_dependencies(Boost::iostreams get_boost)
 add_dependencies(Boost::unit_test_framework get_boost)

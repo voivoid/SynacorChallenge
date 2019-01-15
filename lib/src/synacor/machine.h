@@ -19,6 +19,6 @@ struct Machine
   std::ostream& ostream;
 };
 
-void execute( Machine& machine );
+void run( Machine& machine );
 
 }  // namespace synacor
