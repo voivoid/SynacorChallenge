@@ -1,6 +1,6 @@
 #pragma once
 
-#include "synacor/arch.h"
+#include "interfaces.h"
 
 #include <iosfwd>
 #include <memory>
@@ -10,12 +10,12 @@ namespace synacor
 
 class MemoryStorage;
 class Stack;
+class IO;
 struct Machine
 {
-  std::unique_ptr<MemoryStorage> memory;
-  std::unique_ptr<Stack> stack;
-  std::istream& istream;
-  std::ostream& ostream;
+    IMemory& memory;
+    IStack& stack;
+    IStream& io;
 };
 
 void run( Machine& machine );

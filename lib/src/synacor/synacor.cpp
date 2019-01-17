@@ -2,6 +2,7 @@
 #include "synacor/machine.h"
 #include "synacor/memory_storage.h"
 #include "synacor/stack.h"
+#include "synacor/io.h"
 #include <iostream>
 
 namespace
@@ -19,9 +20,13 @@ namespace synacor
 {
 void execute( const std::byte* const memory_data, const size_t memory_data_size )
 {
-  Machine machine{ std::make_unique<MemoryStorage>(), std::make_unique<Stack>(), std::cin, std::cout };
-  load_memory( *machine.memory, memory_data, memory_data_size );
+  MemoryStorage memory;
+  load_memory( memory, memory_data, memory_data_size );
 
+  Stack stack;
+  IO io{ std::cin, std::cout };
+
+  Machine machine{ memory, stack, io };
   run( machine );
 }
 }  // namespace synacor

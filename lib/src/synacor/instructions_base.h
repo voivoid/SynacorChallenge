@@ -76,6 +76,6 @@ protected:
   Word c;
 };
 
-std::unique_ptr<Instruction> read_instruction( const MemoryStorage&, Address command_address );
+std::unique_ptr<Instruction> read_instruction( const IMemoryReader& memory_reader, Address command_address );
 
 }  // namespace synacor

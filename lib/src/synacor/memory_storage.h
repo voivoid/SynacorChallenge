@@ -2,6 +2,7 @@
 
 #include "synacor/arch.h"
 #include "synacor/assert.h"
+#include "synacor/interfaces.h"
 
 #include <array>
 #include <memory>
@@ -10,14 +11,14 @@
 namespace synacor
 {
 
-class MemoryStorage
+class MemoryStorage : public IMemory
 {
 public:
   MemoryStorage();
   MemoryStorage( const MemoryStorage& rhs );
 
-  Word read( Address address ) const;
-  void store( Address address, Word number );
+  virtual Word read( Address address ) const override;
+  virtual void store( Address address, Word number ) override;
 
   Address get_register( size_t index ) const;
 
@@ -37,12 +38,6 @@ private:
   using StorageData = std::array<Word, AddressSpaceSize + RegistersCount>;
   std::unique_ptr<StorageData> storage;
 };
-
-bool is_number( Word word );
-bool is_register( Word word );
-bool is_valid_address( Address address );
-
-Number get_value( MemoryStorage& memory, Word word );
 
 
 }  // namespace synacor

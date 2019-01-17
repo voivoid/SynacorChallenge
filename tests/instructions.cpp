@@ -3,6 +3,7 @@
 #include "synacor/instructions.h"
 #include "synacor/memory_storage.h"
 #include "synacor/stack.h"
+#include "synacor/io.h"
 #include "test_utils.h"
 
 #include "boost/scope_exit.hpp"
@@ -18,10 +19,7 @@ namespace
 
 struct InstructionsFixture
 {
-  InstructionsFixture() :
-      machine{ std::make_unique<synacor::MemoryStorage>(), std::make_unique<synacor::Stack>(), io_ss, io_ss },
-      memory{ *machine.memory },
-      stack{ *machine.stack }
+  InstructionsFixture() : io( io_ss, io_ss )
   {
     memory.store( memory.get_register( 1 ), 42 );
   }
@@ -29,6 +27,7 @@ struct InstructionsFixture
   template <typename Instruction, typename... Args>
   synacor::Address exec( Args... args )
   {
+    synacor::Machine machine{ memory, stack, io };
     return Instruction{ args... }.execute( machine, instruction_addr );
   }
 
@@ -63,15 +62,15 @@ struct InstructionsFixture
     return test;
   }
 
-  synacor::Address instruction_addr = synacor::Address{ 30000 };
+  const synacor::Address instruction_addr = synacor::Address{ 30000 };
   std::stringstream io_ss;
-  synacor::Machine machine;
 
-  synacor::MemoryStorage& memory;
-  synacor::Stack& stack;
+  synacor::MemoryStorage memory;
+  synacor::Stack stack;
+  synacor::IO io;
 
-  synacor::Address result_reg      = memory.get_register( 0 );
-  synacor::Address reg_with_42_num = memory.get_register( 1 );
+  const synacor::Address result_reg      = memory.get_register( 0 );
+  const synacor::Address reg_with_42_num = memory.get_register( 1 );
 };
 
 #define CHECK_IS_NOT_CHANGED( var )                                                                                                        \

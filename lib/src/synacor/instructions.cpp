@@ -1,8 +1,6 @@
 #include "synacor/instructions.h"
 
 #include "synacor/assert.h"
-#include "synacor/memory_storage.h"
-#include "synacor/stack.h"
 
 #include <iostream>
 #include <limits>
@@ -14,8 +12,22 @@ bool is_valid_char( const synacor::Number n )
   return n >= 0 && n <= 255;
 }
 
+synacor::Number get_value( const synacor::IMemoryReader& memory, synacor::Word word )
+{
+    if ( synacor::is_number( word ) )
+    {
+      return word;
+    }
+    else if ( synacor::is_register( word ) )
+    {
+      return memory.read( synacor::Address( word ) );
+    }
+
+    throw std::runtime_error( "get_value failed due to invalid word content" );
+}
+
 template <typename ArithmFunc>
-void exec_arith_op( synacor::MemoryStorage& memory, const synacor::Word a, const synacor::Word b, const synacor::Word c )
+void exec_arith_op( synacor::IMemory& memory, const synacor::Word a, const synacor::Word b, const synacor::Word c )
 {
   SYNACOR_ENSURE( synacor::is_register( a ) );
 
@@ -47,7 +59,7 @@ Address Set::execute( Machine& machine, const Address current_address )
 {
   SYNACOR_ENSURE( is_register( a ) );
 
-  machine.memory->store( Address( a ), Word( get_value( *machine.memory, b ) ) );
+  machine.memory.store( Address( a ), Word( get_value( machine.memory, b ) ) );
 
   return calc_next_instruction_address( current_address );
 }
@@ -58,7 +70,7 @@ Address Set::execute( Machine& machine, const Address current_address )
 */
 Address Push::execute( Machine& machine, const Address current_address )
 {
-  machine.stack->push( get_value( *machine.memory, a ) );
+  machine.stack.push( get_value( machine.memory, a ) );
 
   return calc_next_instruction_address( current_address );
 }
@@ -69,10 +81,10 @@ Address Push::execute( Machine& machine, const Address current_address )
 */
 Address Pop::execute( Machine& machine, const Address current_address )
 {
-  SYNACOR_ENSURE( !machine.stack->is_empty() );
+  SYNACOR_ENSURE( !machine.stack.is_empty() );
   SYNACOR_ENSURE( is_register( a ) );
 
-  machine.memory->store( Address( a ), Word( machine.stack->pop() ) );
+  machine.memory.store( Address( a ), Word( machine.stack.pop() ) );
 
   return calc_next_instruction_address( current_address );
 }
@@ -85,8 +97,8 @@ Address Eq::execute( Machine& machine, const Address current_address )
 {
   SYNACOR_ENSURE( is_register( a ) );
 
-  const bool are_equal = get_value( *machine.memory, b ) == get_value( *machine.memory, c );
-  machine.memory->store( Address( a ), are_equal ? Word( 1 ) : Word( 0 ) );
+  const bool are_equal = get_value( machine.memory, b ) == get_value( machine.memory, c );
+  machine.memory.store( Address( a ), are_equal ? Word( 1 ) : Word( 0 ) );
 
   return calc_next_instruction_address( current_address );
 }
@@ -99,8 +111,8 @@ Address Gt::execute( Machine& machine, const Address current_address )
 {
   SYNACOR_ENSURE( is_register( a ) );
 
-  const bool are_greater = get_value( *machine.memory, b ) > get_value( *machine.memory, c );
-  machine.memory->store( Address( a ), are_greater ? 1 : 0 );
+  const bool are_greater = get_value( machine.memory, b ) > get_value( machine.memory, c );
+  machine.memory.store( Address( a ), are_greater ? 1 : 0 );
 
   return calc_next_instruction_address( current_address );
 }
@@ -111,7 +123,7 @@ Address Gt::execute( Machine& machine, const Address current_address )
 */
 Address Jmp::execute( Machine& machine, const Address )
 {
-  return Address( Word( get_value( *machine.memory, a ) ) );
+  return Address( Word( get_value( machine.memory, a ) ) );
 }
 
 /*
@@ -120,8 +132,8 @@ Address Jmp::execute( Machine& machine, const Address )
 */
 Address Jt::execute( Machine& machine, const Address current_address )
 {
-  const bool is_a_nonzero = get_value( *machine.memory, a ) != 0;
-  const Address b_addr    = Address( Word( get_value( *machine.memory, b ) ) );
+  const bool is_a_nonzero = get_value( machine.memory, a ) != 0;
+  const Address b_addr    = Address( Word( get_value( machine.memory, b ) ) );
 
   return is_a_nonzero ? b_addr : calc_next_instruction_address( current_address );
 }
@@ -132,8 +144,8 @@ Address Jt::execute( Machine& machine, const Address current_address )
 */
 Address Jf::execute( Machine& machine, const Address current_address )
 {
-  const bool is_a_zero = get_value( *machine.memory, a ) == 0;
-  const Address b_addr = Address( Word( get_value( *machine.memory, b ) ) );
+  const bool is_a_zero = get_value( machine.memory, a ) == 0;
+  const Address b_addr = Address( Word( get_value( machine.memory, b ) ) );
 
   return is_a_zero ? b_addr : calc_next_instruction_address( current_address );
 }
@@ -144,7 +156,7 @@ Address Jf::execute( Machine& machine, const Address current_address )
 */
 Address Add::execute( Machine& machine, const Address current_address )
 {
-  exec_arith_op<std::plus<Number>>( *machine.memory, a, b, c );
+  exec_arith_op<std::plus<Number>>( machine.memory, a, b, c );
   return calc_next_instruction_address( current_address );
 }
 
@@ -155,7 +167,7 @@ Address Add::execute( Machine& machine, const Address current_address )
 
 Address Mult::execute( Machine& machine, const Address current_address )
 {
-  exec_arith_op<std::multiplies<Number>>( *machine.memory, a, b, c );
+  exec_arith_op<std::multiplies<Number>>( machine.memory, a, b, c );
   return calc_next_instruction_address( current_address );
 }
 
@@ -165,7 +177,7 @@ Address Mult::execute( Machine& machine, const Address current_address )
 */
 Address Mod::execute( Machine& machine, const Address current_address )
 {
-  exec_arith_op<std::modulus<Number>>( *machine.memory, a, b, c );
+  exec_arith_op<std::modulus<Number>>( machine.memory, a, b, c );
   return calc_next_instruction_address( current_address );
 }
 
@@ -175,7 +187,7 @@ Address Mod::execute( Machine& machine, const Address current_address )
 */
 Address And::execute( Machine& machine, const Address current_address )
 {
-  exec_arith_op<std::bit_and<Number>>( *machine.memory, a, b, c );
+  exec_arith_op<std::bit_and<Number>>( machine.memory, a, b, c );
   return calc_next_instruction_address( current_address );
 }
 
@@ -185,7 +197,7 @@ Address And::execute( Machine& machine, const Address current_address )
 */
 Address Or::execute( Machine& machine, const Address current_address )
 {
-  exec_arith_op<std::bit_or<Number>>( *machine.memory, a, b, c );
+  exec_arith_op<std::bit_or<Number>>( machine.memory, a, b, c );
   return calc_next_instruction_address( current_address );
 }
 
@@ -197,7 +209,7 @@ Address Not::execute( Machine& machine, const Address current_address )
 {
   SYNACOR_ENSURE( is_register( a ) );
 
-  machine.memory->store( Address( a ), Word( ~get_value( *machine.memory, b ) ) );
+  machine.memory.store( Address( a ), Word( ~get_value( machine.memory, b ) ) );
 
   return calc_next_instruction_address( current_address );
 }
@@ -211,8 +223,8 @@ Address RMem::execute( Machine& machine, const Address current_address )
   SYNACOR_ENSURE( is_register( a ) );
   SYNACOR_ENSURE( is_valid_address( Address( b ) ) );
 
-  const Address addr_to_read = Address( Word( get_value( *machine.memory, b ) ) );
-  machine.memory->store( Address( a ), machine.memory->read( addr_to_read ) );
+  const Address addr_to_read = Address( Word( get_value( machine.memory, b ) ) );
+  machine.memory.store( Address( a ), machine.memory.read( addr_to_read ) );
 
   return calc_next_instruction_address( current_address );
 }
@@ -226,8 +238,8 @@ Address WMem::execute( Machine& machine, const Address current_address )
   SYNACOR_ENSURE( is_valid_address( Address( a ) ) );
   SYNACOR_ENSURE( is_valid_address( Address( b ) ) );
 
-  const Address addr_to_write_to = Address( Word( get_value( *machine.memory, a ) ) );
-  machine.memory->store( addr_to_write_to, Word( get_value( *machine.memory, b ) ) );
+  const Address addr_to_write_to = Address( Word( get_value( machine.memory, a ) ) );
+  machine.memory.store( addr_to_write_to, Word( get_value( machine.memory, b ) ) );
 
   return calc_next_instruction_address( current_address );
 }
@@ -239,9 +251,9 @@ call: 17 a
 Address Call::execute( Machine& machine, const Address current_address )
 {
   const Address next_instruction = calc_next_instruction_address( current_address );
-  machine.stack->push( Word( next_instruction ) );
+  machine.stack.push( Word( next_instruction ) );
 
-  return Address( Word( get_value( *machine.memory, a ) ) );
+  return Address( Word( get_value( machine.memory, a ) ) );
 }
 
 /*
@@ -250,12 +262,12 @@ ret: 18
 */
 Address Ret::execute( Machine& machine, const Address current_address )
 {
-  if ( machine.stack->is_empty() )
+  if ( machine.stack.is_empty() )
   {
     return Halt{}.execute( machine, current_address );
   }
 
-  return Address( Word( machine.stack->pop() ) );
+  return Address( Word( machine.stack.pop() ) );
 }
 
 /*
@@ -264,10 +276,10 @@ Address Ret::execute( Machine& machine, const Address current_address )
 */
 Address Out::execute( Machine& machine, const Address current_address )
 {
-  const Number chr = get_value( *machine.memory, a );
+  const Number chr = get_value( machine.memory, a );
   SYNACOR_ENSURE( is_valid_char( chr ) );
 
-  machine.ostream.put( static_cast<char>( chr ) );
+  machine.io.put( static_cast<char>( chr ) );
 
   return calc_next_instruction_address( current_address );
 }
@@ -282,9 +294,9 @@ Address In::execute( Machine& machine, const Address current_address )
 {
   SYNACOR_ENSURE( is_register( a ) );
 
-  const auto chr = machine.istream.get();
+  const auto chr = machine.io.get();
   SYNACOR_ENSURE( is_valid_char( chr ) );
-  machine.memory->store( Address( a ), Word( chr ) );
+  machine.memory.store( Address( a ), Word( chr ) );
 
   return calc_next_instruction_address( current_address );
 }

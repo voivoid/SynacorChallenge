@@ -2,12 +2,15 @@ add_library(SynacorLib
   inc/synacor/synacor.h
 
   src/synacor/arch.h
+  src/synacor/arch.cpp
   src/synacor/assert.h
   src/synacor/instructions.h
   src/synacor/instructions.cpp
   src/synacor/instructions_base.h
   src/synacor/instructions_base.cpp
   src/synacor/interfaces.h
+  src/synacor/io.h
+  src/synacor/io.cpp
   src/synacor/machine.h
   src/synacor/machine.cpp
   src/synacor/memory_storage.h

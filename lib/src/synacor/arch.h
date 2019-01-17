@@ -19,6 +19,7 @@ using Word = std::uint16_t;
 
 using Number = boost::multiprecision::number<
     boost::multiprecision::cpp_int_backend<BitsInNumber, BitsInNumber, boost::multiprecision::unsigned_magnitude>>;
+const size_t NumberMax = static_cast<size_t>( std::numeric_limits<synacor::Number>::max() );
 
 struct Address : type_safe::strong_typedef<Address, Word>,
                  type_safe::strong_typedef_op::integer_arithmetic<Address>,
@@ -26,5 +27,9 @@ struct Address : type_safe::strong_typedef<Address, Word>,
 {
   using strong_typedef::strong_typedef;
 };
+
+bool is_number( Word word );
+bool is_register( Word word );
+bool is_valid_address( Address address );
 
 }  // namespace synacor

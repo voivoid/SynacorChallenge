@@ -3,6 +3,7 @@
 #include "synacor/machine.h"
 #include "synacor/memory_storage.h"
 #include "synacor/stack.h"
+#include "synacor/io.h"
 #include "test_utils.h"
 
 #include <array>
@@ -12,7 +13,8 @@
 struct MachineFixture
 {
   MachineFixture() :
-      machine{ std::make_unique<synacor::MemoryStorage>(), std::make_unique<synacor::Stack>(), io_ss, io_ss }
+      io{ io_ss, io_ss },
+      machine{ memory, stack, io }
   {
   }
 
@@ -20,7 +22,7 @@ struct MachineFixture
   {
     for ( const auto word : words )
     {
-      machine.memory->store( write_addr++, word );
+      machine.memory.store( write_addr++, word );
     }
   }
 
@@ -29,8 +31,14 @@ struct MachineFixture
     synacor::run( machine );
   }
 
-  synacor::Machine machine;
   std::stringstream io_ss;
+
+  synacor::MemoryStorage memory;
+  synacor::Stack stack;
+  synacor::IO io;
+
+  synacor::Machine machine;
+
 };
 
 BOOST_FIXTURE_TEST_SUITE( synacor_machine_suite, MachineFixture )

@@ -2,11 +2,6 @@
 
 #include "synacor/assert.h"
 
-namespace
-{
-static const size_t max_number = static_cast<size_t>( std::numeric_limits<synacor::Number>::max() );
-}
-
 namespace synacor
 {
 
@@ -33,41 +28,12 @@ void MemoryStorage::store( Address address, Word word )
 Address MemoryStorage::get_register( size_t index ) const
 {
   SYNACOR_ENSURE( index < RegistersCount );
-  return Address( static_cast<Word>( max_number + 1 + index ) );
+  return Address( static_cast<Word>( NumberMax + 1 + index ) );
 }
 
 size_t MemoryStorage::get_word_index( Address address ) const
 {
   return static_cast<size_t>( type_safe::get( address ) );
-}
-
-bool is_number( const Word word )
-{
-  return word <= max_number;
-}
-
-bool is_register( const Word word )
-{
-  return !is_number( word ) && word <= max_number + RegistersCount;
-}
-
-bool is_valid_address( const Address address )
-{
-  return is_number( Word( address ) ) || is_register( Word( address ) );
-}
-
-Number get_value( MemoryStorage& memory, Word word )
-{
-  if ( is_number( word ) )
-  {
-    return word;
-  }
-  else if ( is_register( word ) )
-  {
-    return memory.read( Address( word ) );
-  }
-
-  throw std::runtime_error( "get_value failed due to invalid word content" );
 }
 
 bool operator==( const MemoryStorage& m1, const MemoryStorage& m2 )
