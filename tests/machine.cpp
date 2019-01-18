@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE( synacor_machine_simple_halt_test )
 
 BOOST_AUTO_TEST_CASE( synacor_machine_arch_spec_test )
 {
-  write_to_mem( { 9, 32768, 32769, 4, 19, 32768, 0 }, synacor::Address{ 0 } );
+  write_to_mem( { 9, 32768, 32769, 4, 19, 32768, 0 } );
   execute();
 
   BOOST_CHECK_EQUAL( std::string( "\x04" ), io_ss.str() );
