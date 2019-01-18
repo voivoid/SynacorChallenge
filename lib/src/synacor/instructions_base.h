@@ -16,7 +16,7 @@ class Instruction
 public:
   using IndexType = size_t;
 
-  virtual ~Instruction()                  = default;
+  virtual ~Instruction()                                               = default;
   virtual Address execute( Machine& machine, Address current_address ) = 0;
 };
 

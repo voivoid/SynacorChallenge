@@ -1,9 +1,9 @@
 #include "boost/test/unit_test.hpp"
 
+#include "synacor/io.h"
 #include "synacor/machine.h"
 #include "synacor/memory_storage.h"
 #include "synacor/stack.h"
-#include "synacor/io.h"
 #include "test_utils.h"
 
 #include <array>
@@ -12,9 +12,7 @@
 
 struct MachineFixture
 {
-  MachineFixture() :
-      io{ io_ss, io_ss },
-      machine{ memory, stack, io }
+  MachineFixture() : io{ io_ss, io_ss }, machine{ memory, stack, io }
   {
   }
 
@@ -38,7 +36,6 @@ struct MachineFixture
   synacor::IO io;
 
   synacor::Machine machine;
-
 };
 
 BOOST_FIXTURE_TEST_SUITE( synacor_machine_suite, MachineFixture )

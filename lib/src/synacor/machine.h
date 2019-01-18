@@ -13,9 +13,9 @@ class Stack;
 class IO;
 struct Machine
 {
-    IMemory& memory;
-    IStack& stack;
-    IStream& io;
+  IMemory& memory;
+  IStack& stack;
+  IStream& io;
 };
 
 void run( Machine& machine );

@@ -4,9 +4,9 @@
 #include "synacor/assert.h"
 #include "synacor/interfaces.h"
 
+#include <algorithm>
 #include <array>
 #include <memory>
-#include <algorithm>
 
 namespace synacor
 {
@@ -25,8 +25,8 @@ public:
   template <typename Iter>
   void load_memory( Iter begin, Iter end )
   {
-      SYNACOR_ENSURE( static_cast<size_t>( std::distance( begin, end ) ) <= AddressSpaceSize );
-      std::copy( begin, end, storage->begin() );
+    SYNACOR_ENSURE( static_cast<size_t>( std::distance( begin, end ) ) <= AddressSpaceSize );
+    std::copy( begin, end, storage->begin() );
   }
 
   friend bool operator==( const MemoryStorage& m1, const MemoryStorage& m2 );

@@ -18,4 +18,4 @@ bool is_valid_address( const Address address )
   return is_number( Word( address ) ) || is_register( Word( address ) );
 }
 
-}
+}  // namespace synacor

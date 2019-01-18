@@ -8,8 +8,8 @@ void run( Machine& machine )
   Address current_address{ 0 };
   while ( is_valid_address( current_address ) )
   {
-    const auto instruction  = read_instruction( machine.memory, current_address );
-    current_address = instruction->execute( machine, current_address );
+    const auto instruction = read_instruction( machine.memory, current_address );
+    current_address        = instruction->execute( machine, current_address );
   }
 }
 }  // namespace synacor

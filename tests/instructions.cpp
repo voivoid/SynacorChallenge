@@ -1,9 +1,9 @@
 #include "boost/test/unit_test.hpp"
 
 #include "synacor/instructions.h"
+#include "synacor/io.h"
 #include "synacor/memory_storage.h"
 #include "synacor/stack.h"
-#include "synacor/io.h"
 #include "test_utils.h"
 
 #include "boost/scope_exit.hpp"

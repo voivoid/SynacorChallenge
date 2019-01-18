@@ -14,16 +14,16 @@ bool is_valid_char( const synacor::Number n )
 
 synacor::Number get_value( const synacor::IMemoryReader& memory, synacor::Word word )
 {
-    if ( synacor::is_number( word ) )
-    {
-      return word;
-    }
-    else if ( synacor::is_register( word ) )
-    {
-      return memory.read( synacor::Address( word ) );
-    }
+  if ( synacor::is_number( word ) )
+  {
+    return word;
+  }
+  else if ( synacor::is_register( word ) )
+  {
+    return memory.read( synacor::Address( word ) );
+  }
 
-    throw std::runtime_error( "get_value failed due to invalid word content" );
+  throw std::runtime_error( "get_value failed due to invalid word content" );
 }
 
 template <typename ArithmFunc>
