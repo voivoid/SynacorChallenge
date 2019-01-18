@@ -18,13 +18,13 @@ void load_memory( synacor::MemoryStorage& memory, const std::byte* const memory_
 
 namespace synacor
 {
-void execute( const std::byte* const memory_data, const size_t memory_data_size )
+void execute( const std::byte* const memory_data, const size_t memory_data_size, std::istream& istream, std::ostream& ostream )
 {
   MemoryStorage memory;
   load_memory( memory, memory_data, memory_data_size );
 
   Stack stack;
-  IO io{ std::cin, std::cout };
+  IO io{ istream, ostream };
 
   Machine machine{ memory, stack, io };
   run( machine );

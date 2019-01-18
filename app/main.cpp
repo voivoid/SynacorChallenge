@@ -1,17 +1,34 @@
-#include "synacor/synacor.h"
-#include <boost/iostreams/device/mapped_file.hpp>
+#include "cmd_parser.h"
+#include "cmd_runner.h"
 
-#include <cstddef>
+#include <iostream>
+#include <stdexcept>
 
-int main()
+namespace
 {
-  boost::iostreams::mapped_file_source file;
-  file.open( "challenge.bin" );
-  if ( !file.is_open() )
+
+void safe_main( int argc, char* argv[] )
+{
+  const auto cmd = synacor::parse_cmd_line( argc, argv );
+  synacor::run_cmd( cmd );
+}
+}  // namespace
+
+int main( int argc, char* argv[] )
+{
+  try
   {
-    throw;
+    safe_main( argc, argv );
+    return 0;
+  }
+  catch ( const std::exception& ex )
+  {
+    std::cerr << "Unhandled exception: " << ex.what() << std::endl;
+  }
+  catch ( ... )
+  {
+    std::cerr << "Unhandled unknown exception" << std::endl;
   }
 
-  const auto* data = reinterpret_cast<const std::byte*>( file.data() );
-  synacor::execute( data, file.size() );
+  return 1;
 }
