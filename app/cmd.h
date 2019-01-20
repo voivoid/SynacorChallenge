@@ -5,19 +5,16 @@
 
 namespace synacor
 {
-struct RunBinary
+struct RunBinaryCmd
 {
   std::string filepath;
 };
 
-struct ShowHelp
+struct ShowHelpCmd
 {
+  std::string help_message;
 };
 
-struct UnknownCmd
-{
-};
-
-using Cmd = std::variant<RunBinary, ShowHelp, UnknownCmd>;
+using Cmd = std::variant<RunBinaryCmd, ShowHelpCmd>;
 
 }  // namespace synacor

@@ -31,17 +31,14 @@ void run_binary( const std::string& filepath )
   synacor::execute( data, mapped_file.size(), std::cin, std::cout );
 }
 
-void exec_cmd( const synacor::RunBinary& cmd )
+void exec_cmd( const synacor::RunBinaryCmd& cmd )
 {
   run_binary( cmd.filepath );
 }
 
-void exec_cmd( const synacor::ShowHelp& )
+void exec_cmd( const synacor::ShowHelpCmd& cmd )
 {
-}
-
-void exec_cmd( const synacor::UnknownCmd& )
-{
+  std::cout << cmd.help_message << std::endl;
 }
 
 }  // namespace
