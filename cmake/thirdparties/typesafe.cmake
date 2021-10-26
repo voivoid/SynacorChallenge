@@ -2,7 +2,7 @@ include(ExternalProject)
 
 find_package(Git REQUIRED)
 
-set(TypesafeVer master)
+set(TypesafeVer main)
 
 ExternalProject_Add(
   get_typesafe

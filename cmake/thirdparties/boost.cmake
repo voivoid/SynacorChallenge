@@ -48,7 +48,7 @@ string(REPLACE . _ BoostVersionUnderscored ${BoostVersion})
 ExternalProject_Add(
   get_boost
   PREFIX thirdparties
-  URL "https://dl.bintray.com/boostorg/release/${BoostVersion}/source/boost_${BoostVersionUnderscored}.tar.gz"
+  URL "https://boostorg.jfrog.io/artifactory/main/release/${BoostVersion}/source/boost_${BoostVersionUnderscored}.tar.gz"
   URL_HASH SHA256=${BoostSHA256}
   CONFIGURE_COMMAND ${BoostBootstrapCmd} ${BoostBootstrapToolset}
   BUILD_COMMAND ${BoostB2} ${BoostB2Toolset} link=static threading=multi runtime-link=shared ${BoostLayout} ${BoostAddressModel} ${BoostBuildVariant} ${BoostLibsCmdLine} -j 4
